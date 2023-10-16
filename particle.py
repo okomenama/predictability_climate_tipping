@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import numpy.random as rd
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import subprocess
 
 class ParticleFilter(object):
@@ -17,16 +18,32 @@ class ParticleFilter(object):
 
     
   def random_sampling(self):#n_particleの5次元粒子を生成（Have to include the state variables as particle)
-    g = rd.uniform(0,2.0,self.n_particle)
+    Topt = rd.uniform(26,34.0,self.n_particle)
+    #Topt=np.ones((self.n_particle,))*28
+    g0= rd.uniform(0,2.5,self.n_particle)
+    #gamma = rd.uniform(0.1,0.3,self.n_particle)
+    gamma=np.ones((self.n_particle,))*0.2
+
     v=np.zeros((self.n_particle))
     Tl=np.zeros((self.n_particle,))
+    g=np.zeros((self.n_particle,))
     pre_v=np.zeros((self.n_particle))
     pre_Tl=np.zeros((self.n_particle,))
+    pre_g=np.zeros((self.n_particle,))
+    tip=np.zeros((self.n_particle,))
+    tip_step=np.zeros((self.n_particle,))
     #alpha = rd.uniform(4.5,5.5,self.n_particle)
     #beta = rd.uniform(9.5,10.5,self.n_particle)
-    #gamma = rd.uniform(0.15,0.25,self.n_particle)
     #Tf = rd.uniform(30,35,self.n_particle) #TODO: 仮置き 大まかな値を予想して生成する必要あり
-    self.particle = np.stack([g,v,Tl,pre_v,pre_Tl]).T
+    self.particle = np.stack([Topt,g0,gamma,v,Tl,g,pre_v,pre_Tl,pre_g,tip,tip_step]).T
+
+  ####still for two-dimensional variables
+  def gaussian_inflation(self,st_inds,a=0.1):
+    cov=np.cov(self.particle[:,st_inds].transpose())
+    print('cov=')
+    print(cov)
+    self.particle[:,st_inds]+=a*np.random.multivariate_normal(np.zeros(len(st_inds)),cov,self.n_particle)
+    return
     
   def norm_likelihood(self,y,x,s):
     return ((np.sqrt(2*np.pi))*s)**(-1)*np.exp(-(y-x)**2/(2*s**2))
@@ -61,11 +78,24 @@ class ParticleFilter(object):
     return k
 
   def hist_particle(self, dir, num = 0):
-    for i in range(5):
+    for i in range(7):
       plt.hist(self.particle[:, i],bins = 20)
       plt.savefig(f"{dir}/{i}_{num}.png")
       plt.clf()
     return
+  
+  def write_particle_dist(self,ind1,ind2,dir, num=0):
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    x=self.particle[:,ind1]
+    y=self.particle[:,ind2]
+    H = ax.hist2d(x,y, bins=40, cmap=cm.jet)
+    ax.set_title('1st graph')
+
+    fig.colorbar(H[3],ax=ax)
+    fig.savefig(f"{dir}/heatmap.png")
+    fig.clf()
 
   def resampling3(self,weights):
     stdparticle = np.std(self.particle, axis=0)
