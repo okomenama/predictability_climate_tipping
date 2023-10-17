@@ -111,17 +111,4 @@ class ParticleFilter(object):
         self.particle[i] = self.particle[max_index]+ rd.normal(0., stdparticle) / 2.
 
     return
-  
-  #get observation and resample param
-  #input observation should be ndarray
-  def renew_param(self,obs,ind): #ind:index list of state variable(input observation)
-    ##make likelifood matrix
-    s=1 #TODO:set the uncertainty of the variable
-
-    weights_mat=self.log_norm_likelihood(obs,self.particle[:,ind],s)
-    weights=np.sum(weights_mat,axis=0)
-
-    self.resampling(np.exp(weights))
     
-    return #then, renew self.particle[:,ind] by time evolution according to the governing equation 
-  
