@@ -37,6 +37,19 @@ class ParticleFilter(object):
     #Tf = rd.uniform(30,35,self.n_particle) #TODO: 仮置き 大まかな値を予想して生成する必要あり
     self.particle = np.stack([Topt,g0,gamma,v,Tl,g,pre_v,pre_Tl,pre_g,tip,tip_step]).T
 
+  def random_sampling_amoc(self):#generate random particles of AMOC model
+    ita=np.random.uniform(10**(-5),5*10**(-5),self.n_particle)
+    V=np.ones((self.n_particle,))*300*4.5*8250
+    mu=np.ones((self.n_particle,))*6.2**(0.5)
+    td=np.ones((self.n_particle,))*180
+
+    y=np.zeros((self.n_particle,))
+    pre_y=np.zeros((self.n_particle,))
+    Q=np.zeros((self.n_particle,))
+
+    self.particle = np.stack([ita,V,mu,td,y,pre_y,Q])
+
+
   ####still for two-dimensional variables
   def gaussian_inflation(self,st_inds,a=0.1):
     cov=np.cov(self.particle[:,st_inds].transpose())
@@ -77,10 +90,10 @@ class ParticleFilter(object):
     k = np.array([self.F_inv(w_cumsum,val) for val in u])
     return k
 
-  def hist_particle(self, dir, num = 0):
-    for i in range(7):
+  def hist_particle(self, dir, num):
+    for i in range(num):
       plt.hist(self.particle[:, i],bins = 20)
-      plt.savefig(f"{dir}/{i}_{num}.png")
+      plt.savefig(f"{dir}/{i}+'particle.png")
       plt.clf()
     return
   
