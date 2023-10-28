@@ -47,7 +47,7 @@ class ParticleFilter(object):
     pre_y=np.zeros((self.n_particle,))
     Q=np.zeros((self.n_particle,))
 
-    self.particle = np.stack([ita,V,mu,td,y,pre_y,Q])
+    self.particle = np.stack([ita,V,mu,td,y,pre_y,Q]).T
 
 
   ####still for two-dimensional variables
