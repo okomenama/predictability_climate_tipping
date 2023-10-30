@@ -21,8 +21,12 @@ class ParticleFilter(object):
     Topt = rd.uniform(26,34.0,self.n_particle)
     #Topt=np.ones((self.n_particle,))*28
     g0= rd.uniform(0,2.5,self.n_particle)
-    #gamma = rd.uniform(0.1,0.3,self.n_particle)
-    gamma=np.ones((self.n_particle,))*0.2
+    gamma = rd.uniform(0.1,0.3,self.n_particle)
+    #gamma=np.ones((self.n_particle,))*0.2
+    #alpha=np.ones((self.n_particle,))*5
+    beta=np.ones((self.n_particle,))*10
+    alpha = rd.uniform(4.5,5.5,self.n_particle)
+    beta = rd.uniform(9.5,10.5,self.n_particle)
 
     v=np.zeros((self.n_particle))
     Tl=np.zeros((self.n_particle,))
@@ -32,10 +36,8 @@ class ParticleFilter(object):
     pre_g=np.zeros((self.n_particle,))
     tip=np.zeros((self.n_particle,))
     tip_step=np.zeros((self.n_particle,))
-    #alpha = rd.uniform(4.5,5.5,self.n_particle)
-    #beta = rd.uniform(9.5,10.5,self.n_particle)
     #Tf = rd.uniform(30,35,self.n_particle) #TODO: 仮置き 大まかな値を予想して生成する必要あり
-    self.particle = np.stack([Topt,g0,gamma,v,Tl,g,pre_v,pre_Tl,pre_g,tip,tip_step]).T
+    self.particle = np.stack([Topt,g0,gamma,alpha,beta,v,Tl,g,pre_v,pre_Tl,pre_g,tip,tip_step]).T
 
   def random_sampling_amoc(self):#generate random particles of AMOC model
     ita=np.random.uniform(10**(-5),5*10**(-5),self.n_particle)
@@ -93,7 +95,7 @@ class ParticleFilter(object):
   def hist_particle(self, dir, num):
     for i in range(num):
       plt.hist(self.particle[:, i],bins = 20)
-      plt.savefig(f"{dir}/{i}+'particle.png")
+      plt.savefig(f"{dir}/{i}+particle.png")
       plt.clf()
     return
   
