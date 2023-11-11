@@ -25,8 +25,8 @@ class ParticleFilter(object):
     #gamma=np.ones((self.n_particle,))*0.2
     #alpha=np.ones((self.n_particle,))*5
     beta=np.ones((self.n_particle,))*10
-    alpha = rd.uniform(4.5,5.5,self.n_particle)
-    beta = rd.uniform(9.5,10.5,self.n_particle)
+    alpha = rd.uniform(3.5,6.5,self.n_particle)
+    beta = rd.uniform(8.0,12.0,self.n_particle)
 
     v=np.zeros((self.n_particle))
     Tl=np.zeros((self.n_particle,))
