@@ -1,5 +1,7 @@
 import numpy as np
-from particle import particle
+import sys
+sys.path.append("../particle_filter/")
+import particle
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -77,7 +79,7 @@ if __name__=='__main__':
     s_num=1000
     print('obs_num:'+str(obs_num))
     print('s_num:'+str(s_num))
-    roop=3
+    roop=4
     s_obs=0.1 ##observation noise
     s_li=0.1 ##likelihood variation
     dt=0.1 ##time step
@@ -96,7 +98,7 @@ if __name__=='__main__':
     p_num=7 ##dimension of the parameter set
 
     st_inds=[] ##list of stochastic parameters
-    output='./output/amoc/experitment'+str(n_ex)+'_'+str(roop)
+    output='../../output/amoc/experitment'+str(n_ex)+'_'+str(roop)
     os.mkdir(output)
 
     fs=10 ##observation assimilation frequency
@@ -253,7 +255,7 @@ if __name__=='__main__':
 
     import csv
 
-    with open('/Users/amane/Downloads/research/sawada/thesis/tipping_points/coding/output/amoc/amoc_stable.csv') as f:
+    with open('../data/amoc/amoc_stable.csv') as f:
         ans=csv.reader(f)
         ans=np.array(list(ans)).astype(float)
 

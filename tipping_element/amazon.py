@@ -1,5 +1,7 @@
 import numpy as np
-from particle import particle
+import sys
+sys.path.append("../particle_filter")
+import particle
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -210,9 +212,9 @@ def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1):
 
 
 if __name__=='__main__':
-    n_ex=10
+    n_ex=11
     s_obs=0.05
-    roop=4
+    roop=1
     steps=10000 #steps to execute
     dt=0.1
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
@@ -353,7 +355,7 @@ if __name__=='__main__':
 
     st_inds=[g0_ind,Topt_ind,gamma_ind,alpha_ind,beta_ind]
 
-    output='./output/particle/result'+str(n_ex)+'_'+str(roop)
+    output='../../output/amazon/result'+str(n_ex)+'_'+str(roop)
     os.mkdir(output)
 
     print('the number of observation is '+str(obs_num))
@@ -628,7 +630,7 @@ if __name__=='__main__':
 
     import csv
 
-    with open('./stable_points.csv') as f:
+    with open('../data/stable_points.csv') as f:
         ans=csv.reader(f)
         ans=np.array(list(ans)).astype(float)
 
