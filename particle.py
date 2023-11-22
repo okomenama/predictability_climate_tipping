@@ -21,12 +21,12 @@ class ParticleFilter(object):
     Topt = rd.uniform(26,34.0,self.n_particle)
     #Topt=np.ones((self.n_particle,))*28
     g0= rd.uniform(0,2.5,self.n_particle)
-    gamma = rd.uniform(0.1,0.3,self.n_particle)
-    #gamma=np.ones((self.n_particle,))*0.2
-    #alpha=np.ones((self.n_particle,))*5
+    #gamma = rd.uniform(0.1,0.3,self.n_particle)
+    gamma=np.ones((self.n_particle,))*0.2
+    alpha=np.ones((self.n_particle,))*5
     beta=np.ones((self.n_particle,))*10
-    alpha = rd.uniform(3.5,6.5,self.n_particle)
-    beta = rd.uniform(8.0,12.0,self.n_particle)
+    #alpha = rd.uniform(3.5,6.5,self.n_particle)
+    #beta = rd.uniform(8.0,12.0,self.n_particle)
 
     v=np.zeros((self.n_particle))
     Tl=np.zeros((self.n_particle,))
@@ -36,8 +36,31 @@ class ParticleFilter(object):
     pre_g=np.zeros((self.n_particle,))
     tip=np.zeros((self.n_particle,))
     tip_step=np.zeros((self.n_particle,))
+
+    v2=np.zeros((self.n_particle))
+    Tl2=np.zeros((self.n_particle,))
+    g2=np.zeros((self.n_particle,))
+    pre_v2=np.zeros((self.n_particle))
+    pre_Tl2=np.zeros((self.n_particle,))
+    pre_g2=np.zeros((self.n_particle,))
+    tip2=np.zeros((self.n_particle,))
+    tip2_step=np.zeros((self.n_particle,))
+
+    v3=np.zeros((self.n_particle))
+    Tl3=np.zeros((self.n_particle,))
+    g3=np.zeros((self.n_particle,))
+    pre_v3=np.zeros((self.n_particle))
+    pre_Tl3=np.zeros((self.n_particle,))
+    pre_g3=np.zeros((self.n_particle,))
+    tip3=np.zeros((self.n_particle,))
+    tip3_step=np.zeros((self.n_particle,))
     #Tf = rd.uniform(30,35,self.n_particle) #TODO: 仮置き 大まかな値を予想して生成する必要あり
-    self.particle = np.stack([Topt,g0,gamma,alpha,beta,v,Tl,g,pre_v,pre_Tl,pre_g,tip,tip_step]).T
+    self.particle = np.stack([
+      Topt,g0,gamma,alpha,beta,
+      v,Tl,g,pre_v,pre_Tl,pre_g,tip,tip_step,
+      v2,Tl2,g2,pre_v2,pre_Tl2,pre_g2,
+      v3,Tl3,g3,pre_v3,pre_Tl3,pre_g3,
+      tip2,tip2_step,tip3,tip3_step]).T
 
   def random_sampling_amoc(self):#generate random particles of AMOC model
     ita=np.random.uniform(10**(-5),5*10**(-5),self.n_particle)
@@ -55,8 +78,8 @@ class ParticleFilter(object):
   ####still for two-dimensional variables
   def gaussian_inflation(self,st_inds,a=0.1):
     cov=np.cov(self.particle[:,st_inds].transpose())
-    print('cov=')
-    print(cov)
+    #print('cov=')
+    #print(cov)
     self.particle[:,st_inds]+=a*np.random.multivariate_normal(np.zeros(len(st_inds)),cov,self.n_particle)
     return
     
