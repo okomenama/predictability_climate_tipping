@@ -295,7 +295,7 @@ if __name__=='__main__':
             print('likelihood sd:'+str(s_li))
             for roop in range(1,7,1):
                 obs_num=int(10*(2**roop)/2+1) ####Number of observation
-                obs_num=0
+                #obs_num=0
                 #roop=3
                 print('obs_num:'+str(obs_num))
                 fs=int(200/(2**roop)*2)

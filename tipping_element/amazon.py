@@ -184,7 +184,7 @@ def amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf,v):
 
     return k
 
-def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1):
+def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,iters=1,dt=0.1,epsilon=1,noise=0,amp=0.05):
     ##set hyperparams
     alpha=5
     beta=10
@@ -203,18 +203,22 @@ def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1):
         k4=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v[step]+dt*k3)
 
         #print('k1={},k2={},k3={},k4={}'.format(k1,k2,k3,k4))
-
-        v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon
-
-        Tl[step+1]=Tf[step+1]+alpha*(1-v[step+1])
-        g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
+        if noise==1:
+            ns=np.random.randn(iters)*dt*amp
+            v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon+ns
+            Tl[step+1]=Tf[step+1]+alpha*(1-v[step+1])
+            g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
+        else:
+            v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon
+            Tl[step+1]=Tf[step+1]+alpha*(1-v[step+1])
+            g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
 
 
 
 if __name__=='__main__':
     n_ex=11
     s_obs=0.05
-    roop=1
+    roop=2
     steps=10000 #steps to execute
     dt=0.1
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
@@ -630,7 +634,7 @@ if __name__=='__main__':
 
     import csv
 
-    with open('../data/stable_points.csv') as f:
+    with open('../data/amazon/stable_points.csv') as f:
         ans=csv.reader(f)
         ans=np.array(list(ans)).astype(float)
 

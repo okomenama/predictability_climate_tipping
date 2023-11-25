@@ -6,7 +6,7 @@ void SolveCubicEquation(double complex x[],double a,double b,double c,double d);
 void SolveQuarticEquation(double complex x[],double a,double b,double c,double d,double e);
 double Cuberoot(double x);
 double complex Squreroot(double complex x);
-
+/*
 int main(void){
     double g0=2;
     double alpha=5;
@@ -71,7 +71,7 @@ int main(void){
     }
     
 }
-/*
+*/
 int main(){
     double a;
     double b;
@@ -109,7 +109,7 @@ int main(){
 
     }
 }
-*/
+
 void SolveCubicEquation(double complex x[],double a,double b,double c,double d){
     double A,B,C,p,q,D;
     A = b/a;
