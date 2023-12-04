@@ -2,6 +2,7 @@ import numpy as np
 import sys
 sys.path.append("../particle_filter")
 import particle
+import amazon
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -9,210 +10,8 @@ import os
 import shutil
 
 ##function setting
-def T_develop(steps,dt,mu,T_start,dTlim,mu0):
-    ##Tstart is the temprature shown as Tf in preindustrial period in Amazon forest
-    ##dTlim is the param which shows the goal determined in Paris conference
-    dT0=0.89
-    beta=0.0128
-    gamma=beta-mu0*(dTlim-dT0)
-
-    t=np.array([i*dt for i in range(steps)])
-
-    T=T_start+dT0+gamma*t-(1-np.exp(mu*t*(-1)))*(gamma*t-(dTlim-dT0))
-    
-    return T
-
-def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps):
-    ##This is simpler version of temperature profile
-    ##Set dummy threshold d1,d2,d3
-    d1=(Tth+dTex-Tst)/r
-    d2=d1+dtex-dTex/s-dTex/r
-    d3=d2+(Tth+dTex-Te)/s
-
-    t=np.array([i*dt for i in range(steps)])
-    T=(Tst+r*t)*(t<d1) \
-    +(Tth+dTex)*(t>d1)*(t<d2) \
-    +(Tth+dTex-s*(t-d2))*(t<d3)*(t>d2) \
-    +Te*(t>d3)
-
-    amp=0
-    T+=amp*np.random.randn(steps)*dt
-    print('temperature noise :'+str(amp*dt))
-
-    return T
-
-def MCMC_resampling():
-    return
-
-def forest_dieback(pre_v,pre_Tl,pre_g,g0,Topt,beta,gamma,dt,alpha):
-    epsilon=0.5
-    print('time scale(large means slow varying) : '+str(epsilon))
-    dv=(pre_g*pre_v*(1-pre_v)-gamma*pre_v)*dt/epsilon
-    post_Tl=pre_Tl-alpha*dv
-    post_v=pre_v+dv
-
-    post_g=g0*(1-((post_Tl-Topt)/beta)**2)
-    return post_v,post_Tl
-
-def simple_model(pre_v,pre_Tl,g,gamma,dt,alpha):
-    ##ignoring g Euler_dynamics
-    dv=(g*pre_v*(1-pre_v)-gamma*pre_v)*dt
-    post_Tl=pre_Tl-alpha*dv
-    post_v=pre_v+dv
-
-    l=len(post_v)
-
-    post_v+=dt*0.01*np.random.randn(l)
-    post_Tl+=dt*0.03*np.random.randn(l)
-
-    return post_v,post_Tl
-
-def simple_model2(pre_v,pre_Tl,pre_g,g0,beta,Topt,gamma,dt,alpha):
-    ##ignoring g Euler_dynamics
-    dv=(pre_g*pre_v*(1-pre_v)-gamma*pre_v)*dt
-    post_Tl=pre_Tl-alpha*dv
-    post_v=pre_v+dv
-
-    l=len(post_v)
-
-    post_v+=dt*0.05*np.random.randn(l)
-    post_Tl+=dt*0.5*np.random.randn(l)
-
-    post_g=g0*(1-(post_Tl-Topt)/beta)*(1+(post_Tl-Topt)/beta)
-
-    return post_v,post_Tl,post_g
-
-def simple_model3(pre_v,pre_Tl,pre_g,g0,beta,Topt,gamma,dt,alpha,Tf,step):
-    ##ignoring g Euler_dynamics
-    dv=(pre_g*pre_v*(1-pre_v)-gamma*pre_v)*dt
-    dTf=Tf[step]-Tf[step-1]
-
-    post_Tl=pre_Tl-alpha*dv+dTf
-    post_v=pre_v+dv
-
-    l=len(post_v)
-    noise=0.01*np.random.randn(l)
-    post_v+=dt*noise
-    post_Tl-=alpha*dt*noise
-
-    post_g=g0*(1-(post_Tl-Topt)/beta)*(1+(post_Tl-Topt)/beta)
-
-    return post_v,post_Tl,post_g
-
-def simple_model4(pre_v,pre_Tl,pre_g,g0,beta,Topt,gamma,dt,alpha,Tf,step,epsilon=1):
-    ##Runge Kutta
-    l=len(pre_v)
-
-    k1=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],pre_v)
-    k2=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],pre_v+dt/2*k1)
-    k3=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],pre_v+dt/2*k2)
-    k4=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],pre_v+dt*k3)
-
-    post_v=pre_v+dt/6*(k1+2*k2+2*k3+k4)/epsilon
-    #post_v+=dt*0.05*np.random.randn(l)
-
-    post_Tl=Tf[step]+alpha*(1-post_v)
-    post_g=g0*(1-(post_Tl-Topt)/beta)*(1+(post_Tl-Topt)/beta)
-
-    return post_v,post_Tl,post_g
-
-def back_dynamics(v,Tl,g,g0,beta,Topt,gamma,dt,alpha,Tf,step,epsilon=1):
-    k1=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v)
-    k2=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v-dt/2*k1)
-    k3=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v-dt/2*k2)
-    k4=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v-dt*k3)
-
-    v=v-dt/6*(k1+2*k2+2*k3+k4)/epsilon
-    Tl=Tf[step+1]+alpha*(1-v)
-    g=g0*(1-(Tl-Topt)/beta)*(1+(Tl-Topt)/beta)
-
-def likelihood(v_obs,v,s):
-    return np.exp((-1)*(v-v_obs)*(v-v_obs)/2/s/s)/np.sqrt(2*np.pi)/s
-
-def resampling(l,weights):
-    weights /= weights.sum()
-    w_cumsum = np.cumsum(weights)
-    k_list = np.searchsorted(w_cumsum, np.random.uniform(0,1,size = l))
-    return k_list
-
-def smoother(v,Tl,g,g0,beta,Topt,gamma,dt,alpha,Tf,fs,step,r_obs,s,epsilon=1):
-    l=len(v)
-    rv=v.copy()
-    rTl=Tl.copy()
-    rg=g.copy()
-    rg0=g0.copy()
-    rTopt=Topt.copy()
-
-
-    likelihood_vec=np.ones(l)
-    rsteps=r_obs*fs
-    rmin=step-rsteps
-    robs_steps=[rmin+i*fs for i in range(r_obs)]
-
-    for rstep in range(rsteps):
-        back_dynamics(rv,rTl,rg,rg0,beta,rTopt,gamma,dt,alpha,Tf,step-rstep)
-        if step-rstep in robs_steps:
-            likelihood_vec*=likelihood(v_obs[step-rstep],rv,s)
-
-    return likelihood_vec
-
-
-
-def Euler_dynamics(v,Tl,g,steps,Tf,dt=0.1):
-    ##set hyperparams    alpha=5
-    beta=10
-    Topt=28
-    g0=2
-    gamma=0.2
-    alpha=5
-    
-    v[0]=0.8
-    Tl[0]=Tf[0]+(1-v[0])*alpha
-    g[0]=g0*(1-((Tl[0]-Topt)/beta)**2)
-
-    for step in range(steps-1):
-        dv=(g[step]*v[step]*(1-v[step])-gamma*v[step])*dt
-        dTf=Tf[step+1]-Tf[step]
-        Tl[step+1]=Tl[step]-alpha*dv+dTf
-        v[step+1]=v[step]+dv
-
-        g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
-
-def amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf,v):
-    g=g0*(1-(((Tf+alpha*(1-v))-Topt)/beta)**2)
-    k=g*v*(1-v)-gamma*v
-
-    return k
-
-def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1):
-    ##set hyperparams
-    alpha=5
-    beta=10
-    Topt=28
-    g0=2
-    gamma=0.2
-
-    v[0]=0.8
-    Tl[0]=Tf[0]+(1-v[0])*alpha
-    g[0]=g0*(1-((Tl[0]-Topt/beta))**2)
-
-    for step in range(steps-1):
-        k1=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v[step])
-        k2=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v[step]+dt/2*k1)
-        k3=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v[step]+dt/2*k2)
-        k4=amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf[step],v[step]+dt*k3)
-
-        #print('k1={},k2={},k3={},k4={}'.format(k1,k2,k3,k4))
-
-        v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon
-
-        Tl[step+1]=Tf[step+1]+alpha*(1-v[step+1])
-        g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
-
-
-
 if __name__=='__main__':
-    with open('../data/amazon/tip_num_non_obs.csv', 'w', encoding='utf-8') as f:
+    with open('../data/amazon/tip_num_non_obs3.csv', 'w', encoding='utf-8') as f:
         steps=10000 #steps to execute
         dt=0.1
         #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
@@ -221,13 +20,13 @@ if __name__=='__main__':
         dTlim=1.5
         Tf=T_develop(steps,dt,mu,T_start,dTlim,mu0)
         '''
-        T_start=32.9
+        T_start=34
         Tth=34.7
         dTex=0.2
         Te=34
         dtex=80
-        r=0.0089
-        s=0.004
+        r=0.0034
+        s=0.01
         a=0.1
         '''[0.0089,0.004,0.01,60,'r'],
         [0.0089,0.005,0.2,80,'m'],
@@ -276,18 +75,18 @@ if __name__=='__main__':
 
         tip_point=(Tth-T_start)/r
 
-        Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps)
+        Tf=amazon.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps)
         dTex2=0.8
         dtex2=300
-        r2=0.0089
-        s2=0.007
-        Tf2=T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps)
+        r2=0.0034
+        s2=0.013
+        Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps)
 
         dTex3=0.01
         dtex3=60
-        r3=0.0089
-        s3=0.004
-        Tf3=T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps)
+        r3=0.0034
+        s3=0.005
+        Tf3=amazon.T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps)
         #for n_ex,s_obs in [[8,0.025],[9,0.05],[10,0.1],[11,0.2]]:
         for n_ex,s_obs in [[12,0]]:
             #n_ex=8
@@ -316,7 +115,7 @@ if __name__=='__main__':
                     Tl_obs=np.zeros((steps,))
                     v_obs=np.zeros((steps,))
                     g_obs=np.zeros((steps,))
-                    Runge_Kutta_dynamics(v_obs,Tl_obs,g_obs,steps,Tf,epsilon=epsilon)
+                    amazon.Runge_Kutta_dynamics(v_obs,Tl_obs,g_obs,steps,Tf,epsilon=epsilon)
                     v_nonnoise=v_obs.copy()
                     #print('smoothing steps:'+str(r_obs*fs))
                     v_obs+=np.random.randn(steps)*s_obs
@@ -416,17 +215,8 @@ if __name__=='__main__':
                         pcls.particle[:,pre_v3_ind]=pcls.particle[:,v3_ind]
                         pcls.particle[:,pre_Tl3_ind]=pcls.particle[:,Tl3_ind]
                         pcls.particle[:,pre_g3_ind]=pcls.particle[:,g3_ind]
-                        '''
-                        pcls.particle[:,v_ind],pcls.particle[:,Tl_ind]=simple_model(
-                            pcls.particle[:,pre_v_ind],
-                            pcls.particle[:,pre_Tl_ind],
-                            pcls.particle[:,g_ind],
-                            pcls.particle[:,gamma_ind]
-                            ,dt,alpha
-                            )
-                            '''
                         
-                        pcls.particle[:,v_ind],pcls.particle[:,Tl_ind],pcls.particle[:,g_ind]=simple_model4(
+                        pcls.particle[:,v_ind],pcls.particle[:,Tl_ind],pcls.particle[:,g_ind]=amazon.simple_model4(
                             pcls.particle[:,pre_v_ind],
                             pcls.particle[:,pre_Tl_ind],
                             pcls.particle[:,pre_g_ind],
@@ -436,7 +226,7 @@ if __name__=='__main__':
                             pcls.particle[:,gamma_ind]
                             ,dt,alpha,Tf,step,epsilon=epsilon
                             )
-                        pcls.particle[:,v2_ind],pcls.particle[:,Tl2_ind],pcls.particle[:,g2_ind]=simple_model4(
+                        pcls.particle[:,v2_ind],pcls.particle[:,Tl2_ind],pcls.particle[:,g2_ind]=amazon.simple_model4(
                             pcls.particle[:,pre_v2_ind],
                             pcls.particle[:,pre_Tl2_ind],
                             pcls.particle[:,pre_g2_ind],
@@ -446,7 +236,7 @@ if __name__=='__main__':
                             pcls.particle[:,gamma_ind]
                             ,dt,alpha,Tf2,step,epsilon=epsilon
                             )
-                        pcls.particle[:,v3_ind],pcls.particle[:,Tl3_ind],pcls.particle[:,g3_ind]=simple_model4(
+                        pcls.particle[:,v3_ind],pcls.particle[:,Tl3_ind],pcls.particle[:,g3_ind]=amazon.simple_model4(
                             pcls.particle[:,pre_v3_ind],
                             pcls.particle[:,pre_Tl3_ind],
                             pcls.particle[:,pre_g3_ind],
@@ -500,4 +290,5 @@ if __name__=='__main__':
                     #tip_num.append(num/s_num)
                     #print('Tf at the last observation step : '+str(Tf[obs_steps[-1]]))
         # ログファイルを移動
-        #shutil.move('./output.log', output)    
+        output='../../output/amazon/scenario3'
+        shutil.move('./output2.log', output)    

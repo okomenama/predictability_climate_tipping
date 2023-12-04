@@ -213,18 +213,45 @@ def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,iters=1,dt=0.1,epsilon=1,noise=0,amp=0.
             Tl[step+1]=Tf[step+1]+alpha*(1-v[step+1])
             g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
 
+def mutual_information(pri_particles,post_particles,##state space variables, n+1D array(params+state variable)
+                  bin_width, bin_num, dim,min, #width of discretization of state space n+1D array
+                  n_particles
+                  ):
+    
+    pri_bin_ind=np.zeros((n_particles,dim))
+    post_bin_ind=np.zeros((n_particles,dim))
+
+    pri_bin_count=np.zeros(tuple(bin_num))
+    post_bin_count=np.zeros(tuple(bin_num))
+
+
+    for i in range(dim):
+        pri_inds=np.digitize(pri_particles[:,i],bins=[min[i]+j*bin_width[i] for j in range(1,bin_num[i],1)])
+        pri_bin_ind[:,i]+=pri_inds 
+
+        post_inds=np.digitize(post_particles[:,i],bins=[min[i]+j*bin_width[i] for j in range(1,bin_num[i],1)])
+        post_bin_ind[:,i]+=post_inds 
+    
+    for i in range(n_particles):
+        pri_bin_count[tuple([[int(pri_bin_ind[i,j])] for j in range(dim)])]+=1
+        post_bin_count[tuple([[int(post_bin_ind[i,j])] for j in range(dim)])]+=1
+
+    Hprior=(-1)*np.sum(np.where(pri_bin_count <=0,0,pri_bin_count/n_particles*np.log(pri_bin_count/n_particles)))
+    Hpost=(-1)*np.sum(np.where(post_bin_count<=0,0,post_bin_count/n_particles*np.log(post_bin_count/n_particles)))
+    #print('Hprior:'+str(Hprior))
+    #print('Hpost:'+str(Hpost))
+    return Hprior-Hpost
+
 
 
 if __name__=='__main__':
-    n_ex=11
-    s_obs=0.05
-    roop=2
+    n_ex=1
+    s_obs=0.025
+    roop=4
     steps=10000 #steps to execute
     dt=0.1
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
     obs_num=int(10*(2**roop)/2+1) ####Number of observation
-    #roop=3
-    print('obs_num:'+str(obs_num))
     fs=int(200/(2**roop)*2)
     if roop==5:
         obs_num=101
@@ -232,6 +259,7 @@ if __name__=='__main__':
     if roop==6:
         obs_num=201
         fs=10
+    print('obs_num:'+str(obs_num))
     '''
     T_start=32.9
     dTlim=1.5
@@ -293,7 +321,7 @@ if __name__=='__main__':
     print('likelihood sd:'+str(s_li))
     print('obs_noise:'+str(s_obs))
 
-    seed=5
+    seed=20
     np.random.seed(seed)
     dTex2=0.8
     dtex2=300
@@ -321,7 +349,7 @@ if __name__=='__main__':
     #dt=0.1
 
     pcls=particle.ParticleFilter(s_num)
-
+    pcls_no_obs=particle.ParticleFilter(s_num)
     Topt_ind=0
     g0_ind=1
     gamma_ind=2
@@ -385,6 +413,8 @@ if __name__=='__main__':
 
     ##self.particleを生成
     pcls.random_sampling()
+    pcls_no_obs.random_sampling()
+    pcls_no_obs.particle[:,:]=pcls.particle[:,:]
     
     pcls.particle[:,v_ind]=0.8
     pcls.particle[:,Tl_ind]=T_start+(1-pcls.particle[:,v_ind])*alpha
@@ -394,6 +424,15 @@ if __name__=='__main__':
 
     pcls.particle[:,v3_ind]=0.8
     pcls.particle[:,Tl3_ind]=T_start+(1-pcls.particle[:,v3_ind])*alpha
+
+    pcls_no_obs.particle[:,v_ind]=0.8
+    pcls_no_obs.particle[:,Tl_ind]=T_start+(1-pcls_no_obs.particle[:,v_ind])*alpha
+
+    pcls_no_obs.particle[:,v2_ind]=0.8
+    pcls_no_obs.particle[:,Tl2_ind]=T_start+(1-pcls_no_obs.particle[:,v2_ind])*alpha
+
+    pcls_no_obs.particle[:,v3_ind]=0.8
+    pcls_no_obs.particle[:,Tl3_ind]=T_start+(1-pcls_no_obs.particle[:,v3_ind])*alpha
     
     print('start time devlop')
     T=np.array([t*dt for t in range(steps)])
@@ -411,16 +450,6 @@ if __name__=='__main__':
         pcls.particle[:,pre_v3_ind]=pcls.particle[:,v3_ind]
         pcls.particle[:,pre_Tl3_ind]=pcls.particle[:,Tl3_ind]
         pcls.particle[:,pre_g3_ind]=pcls.particle[:,g3_ind]
-
-        '''
-        pcls.particle[:,v_ind],pcls.particle[:,Tl_ind]=simple_model(
-            pcls.particle[:,pre_v_ind],
-            pcls.particle[:,pre_Tl_ind],
-            pcls.particle[:,g_ind],
-            pcls.particle[:,gamma_ind]
-            ,dt,alpha
-            )
-            '''
         
         pcls.particle[:,v_ind],pcls.particle[:,Tl_ind],pcls.particle[:,g_ind]=simple_model4(
             pcls.particle[:,pre_v_ind],
@@ -452,6 +481,60 @@ if __name__=='__main__':
             pcls.particle[:,gamma_ind]
             ,dt,alpha,Tf3,step,epsilon=epsilon
             )
+        
+        
+        pcls_no_obs.particle[:,pre_v_ind]=pcls_no_obs.particle[:,v_ind]
+        pcls_no_obs.particle[:,pre_Tl_ind]=pcls_no_obs.particle[:,Tl_ind]
+        pcls_no_obs.particle[:,pre_g_ind]=pcls_no_obs.particle[:,g_ind]
+
+        pcls_no_obs.particle[:,pre_v2_ind]=pcls_no_obs.particle[:,v2_ind]
+        pcls_no_obs.particle[:,pre_Tl2_ind]=pcls_no_obs.particle[:,Tl2_ind]
+        pcls_no_obs.particle[:,pre_g2_ind]=pcls_no_obs.particle[:,g2_ind]
+
+        pcls_no_obs.particle[:,pre_v3_ind]=pcls_no_obs.particle[:,v3_ind]
+        pcls_no_obs.particle[:,pre_Tl3_ind]=pcls_no_obs.particle[:,Tl3_ind]
+        pcls_no_obs.particle[:,pre_g3_ind]=pcls_no_obs.particle[:,g3_ind]
+
+        '''
+        pcls.particle[:,v_ind],pcls.particle[:,Tl_ind]=simple_model(
+            pcls.particle[:,pre_v_ind],
+            pcls.particle[:,pre_Tl_ind],
+            pcls.particle[:,g_ind],
+            pcls.particle[:,gamma_ind]
+            ,dt,alpha
+            )
+            '''
+        
+        pcls_no_obs.particle[:,v_ind],pcls_no_obs.particle[:,Tl_ind],pcls_no_obs.particle[:,g_ind]=simple_model4(
+            pcls_no_obs.particle[:,pre_v_ind],
+            pcls_no_obs.particle[:,pre_Tl_ind],
+            pcls_no_obs.particle[:,pre_g_ind],
+            pcls_no_obs.particle[:,g0_ind],
+            beta,
+            pcls_no_obs.particle[:,Topt_ind],
+            pcls_no_obs.particle[:,gamma_ind]
+            ,dt,alpha,Tf,step,epsilon=epsilon
+            )
+        pcls_no_obs.particle[:,v2_ind],pcls_no_obs.particle[:,Tl2_ind],pcls_no_obs.particle[:,g2_ind]=simple_model4(
+            pcls_no_obs.particle[:,pre_v2_ind],
+            pcls_no_obs.particle[:,pre_Tl2_ind],
+            pcls_no_obs.particle[:,pre_g2_ind],
+            pcls_no_obs.particle[:,g0_ind],
+            beta,
+            pcls_no_obs.particle[:,Topt_ind],
+            pcls_no_obs.particle[:,gamma_ind]
+            ,dt,alpha,Tf2,step,epsilon=epsilon
+            )
+        pcls_no_obs.particle[:,v3_ind],pcls_no_obs.particle[:,Tl3_ind],pcls_no_obs.particle[:,g3_ind]=simple_model4(
+            pcls_no_obs.particle[:,pre_v3_ind],
+            pcls_no_obs.particle[:,pre_Tl3_ind],
+            pcls_no_obs.particle[:,pre_g3_ind],
+            pcls_no_obs.particle[:,g0_ind],
+            beta,
+            pcls_no_obs.particle[:,Topt_ind],
+            pcls_no_obs.particle[:,gamma_ind]
+            ,dt,alpha,Tf3,step,epsilon=epsilon
+            )
         if step in obs_steps:
             weights=pcls.norm_likelihood(v_obs[step],pcls.particle[:,v_ind],s_li)
             inds=pcls.resampling(weights)
@@ -474,6 +557,7 @@ if __name__=='__main__':
             #fig.colorbar(mappable,ax=ax)
             fig.savefig(dir+'/particle_distribution.png')
             fig.clf()
+            plt.close()
             
 
             pcls.gaussian_inflation(st_inds,a=0.1)
@@ -495,7 +579,8 @@ if __name__=='__main__':
             #fig.colorbar(mappable,ax=ax)
             fig.savefig(dir+'/particle_distribution_inflated.png')
             fig.clf()
-            
+            plt.close()
+
             if (step>r_obs*fs)&(r_obs>0):
                 rweights=smoother(pcls.particle[:,v_ind],
                                 pcls.particle[:,Tl_ind],
@@ -668,7 +753,8 @@ if __name__=='__main__':
     
     fig.savefig(output+'/fig_forslide_Tf_tipping_tmv'+str(obs_num)+'.png')
     fig.clf()
-    
+    plt.close()
+
     print(' ')
     ##温度のプロファイルを図示する
     fig=plt.figure()
@@ -680,6 +766,7 @@ if __name__=='__main__':
     ax.plot(T,Tf,color='black')
     fig.savefig(output+'/Tf_profile.png')
     fig.clf()
+    plt.close()
 
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
@@ -690,6 +777,7 @@ if __name__=='__main__':
     ax.plot(T,Tf2,color='black')
     fig.savefig(output+'/Tf2_profile.png')
     fig.clf()
+    plt.close()
 
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
@@ -700,6 +788,7 @@ if __name__=='__main__':
     ax.plot(T,Tf3,color='black')
     fig.savefig(output+'/Tf3_profile.png')
     fig.clf()
+    plt.close()
     #roop+=1
     ###最後に生き残っている粒子のtippingまでの時間をカラーマップとして二次元平面上にプロットする
     tip_time=np.zeros((pcls.n_particle,4))
@@ -709,10 +798,12 @@ if __name__=='__main__':
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
-    ax.set_xlim((0,10000))
+    ax.set_xlim(0,10000)
+    ax.set_ylim(0,1000)
     ax.set_title('tipping time distribution')
     fig.savefig(output+'/tipping_time_distribution.png')
     fig.clf()
+    plt.close()
     
     x = tip_time[:,0]
     y = tip_time[:,1]
@@ -734,6 +825,7 @@ if __name__=='__main__':
     ax.scatter(x[ineff_ind],y[ineff_ind],color='black')
     fig.savefig(f"{output}/tipping_heatmap.png")
     fig.clf()
+    plt.close()
 
     tip_time=np.zeros((pcls.n_particle,4))
     tip_time+=pcls.particle[:,[g0_ind,Topt_ind,tip2_step_ind,tip2_ind]]
@@ -742,10 +834,12 @@ if __name__=='__main__':
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
-    ax.set_xlim((0,10000))
+    ax.set_xlim(0,10000)
+    ax.set_ylim(0,1000)
     ax.set_title('tipping time distribution')
     fig.savefig(output+'/tipping2_time_distribution.png')
     fig.clf()
+    plt.close()
 
     x = tip_time[:,0]
     y = tip_time[:,1]
@@ -767,6 +861,7 @@ if __name__=='__main__':
     ax.scatter(x[ineff_ind],y[ineff_ind],color='black')
     fig.savefig(f"{output}/tipping_heatmap2.png")
     fig.clf()
+    plt.close()
 
     tip_time=np.zeros((pcls.n_particle,4))
     tip_time+=pcls.particle[:,[g0_ind,Topt_ind,tip3_step_ind,tip3_ind]]
@@ -775,17 +870,19 @@ if __name__=='__main__':
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
-    ax.set_xlim((0,10000))
+    ax.set_xlim(0,10000)
+    ax.set_ylim(0,1000)
     ax.set_title('tipping time distribution')
     fig.savefig(output+'/tipping3_time_distribution.png')
     fig.clf()
+    plt.close()
 
     x = tip_time[:,0]
     y = tip_time[:,1]
     value=tip_time[:,2]
     eff_ind=tip_time[:,2]<steps
     ineff_ind=tip_time[:,2]==steps
-    print(value)        
+       
     fig = plt.figure()
     ax=fig.add_subplot(1,1,1)
     # カラーマップを生成
@@ -800,34 +897,102 @@ if __name__=='__main__':
     ax.scatter(x[ineff_ind],y[ineff_ind],color='black')
     fig.savefig(f"{output}/tipping_heatmap3.png")
     fig.clf()
+    plt.close()
 
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
     ax.hist(pcls.particle[:,v_ind],bins=20,range=(0,1))
     ax.set_xlim(0,1)
+    ax.set_ylim(0,1000)
     ax.set_xlabel('tropical forest ratio')
     ax.set_title('histgram of particle')
     fig.savefig(output+'/v_result.png')
     fig.clf()
+    plt.close()
 
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
     ax.hist(pcls.particle[:,v2_ind],bins=20,range=(0,1))
     ax.set_xlim(0,1)
+    ax.set_ylim(0,1000)
     ax.set_xlabel('tropical forest ratio')
     ax.set_title('histgram of particle')
     fig.savefig(output+'/v2_result.png')
     fig.clf()
+    plt.close()
 
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
     ax.hist(pcls.particle[:,v3_ind],bins=20,range=(0,1))
     ax.set_xlim(0,1)
+    ax.set_ylim(0,1000)
     ax.set_xlabel('tropical forest ratio')
     ax.set_title('histgram of particle')
     fig.savefig(output+'/v3_result.png')
     fig.clf()
+    plt.close()
     #print(pcls.particle[:,v_ind])
-    
+
+    min=[0,25,1.0]
+    iters=70
+    mi1_list=np.zeros((iters,))
+    mi2_list=np.zeros((iters,))
+    mi3_list=np.zeros((iters,))
+
+    for i in range(1,iters+1,1):
+        bin_num=[i,i,i]
+        bin_width=[1/i,10/i,2/i]
+        print('v range:({},{})'.format(min[0],min[0]+bin_num[0]*bin_width[0]))
+        print('g0 range:({},{})'.format(min[1],min[1]+bin_num[1]*bin_width[1]))
+        print('Topt range:({},{})'.format(min[2],min[2]+bin_num[2]*bin_width[2]))
+        
+        mi1=mutual_information(
+            pcls_no_obs.particle[:,[v_ind,g0_ind,Topt_ind]],
+            pcls.particle[:,[v_ind,g0_ind,Topt_ind]],
+            bin_width,
+            bin_num,
+            3,
+            min,
+            pcls.n_particle
+        )
+        #print('シナリオ1 I(Z;Ya|X)=H(Z|X)-H(Z|Y,X)='+str(mi1))
+        mi2=mutual_information(
+            pcls_no_obs.particle[:,[v2_ind,g0_ind,Topt_ind]],
+            pcls.particle[:,[v2_ind,g0_ind,Topt_ind]],
+            bin_width,
+            bin_num,
+            3,
+            min,
+            pcls.n_particle
+        )
+        #print('シナリオ2 I(Z;Ya|X)=H(Z|X)-H(Z|Y,X)='+str(mi2))
+        mi3=mutual_information(
+            pcls_no_obs.particle[:,[v3_ind,g0_ind,Topt_ind]],
+            pcls.particle[:,[v3_ind,g0_ind,Topt_ind]],
+            bin_width,
+            bin_num,
+            3,
+            min,
+            pcls.n_particle
+        )
+        mi1_list[i-1]+=mi1
+        mi2_list[i-1]+=mi2
+        mi3_list[i-1]+=mi3
+
+    fig=plt.figure()
+    ax=fig.add_subplot(1,1,1)
+    ax.set_ylim(-1,2.4)
+    ax.plot([i+1 for i in range(iters)],mi1_list,color='r',label='0.2deg, 80years')
+    ax.plot([i+1 for i in range(iters)],mi2_list,color='g',label='0.8deg, 300years')
+    ax.plot([i+1 for i in range(iters)],mi3_list,color='b',label='0.01deg, 60years')
+    ax.set_xlabel('num of bin')
+    ax.set_ylabel('mutual information')
+    ax.set_title('mutual information change')
+    fig.legend()
+    fig.savefig(output+'/mutual_information.png')
+    fig.clf()
+    plt.close()
+
+    #print('シナリオ3 I(Z;Ya|X)=H(Z|X)-H(Z|Xa)='+str(mi3))
     # ログファイルを移動
     shutil.move('./output.log', output)    
