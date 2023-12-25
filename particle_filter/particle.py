@@ -18,9 +18,9 @@ class ParticleFilter(object):
 
     
   def random_sampling(self):#n_particleの5次元粒子を生成（Have to include the state variables as particle)
-    Topt = rd.uniform(26,34.0,self.n_particle)
+    Topt = rd.uniform(27,34.0,self.n_particle)
     #Topt=np.ones((self.n_particle,))*28
-    g0= rd.uniform(0,2.5,self.n_particle)
+    g0= rd.uniform(0.8,2.5,self.n_particle)
     #gamma = rd.uniform(0.1,0.3,self.n_particle)
     gamma=np.ones((self.n_particle,))*0.2
     alpha=np.ones((self.n_particle,))*5
@@ -65,21 +65,34 @@ class ParticleFilter(object):
   def random_sampling_amoc(self):#generate random particles of AMOC model
     ita=np.random.uniform(10**(-5),5*10**(-5),self.n_particle)
     V=np.ones((self.n_particle,))*300*4.5*8250
-    mu=np.ones((self.n_particle,))*6.2**(0.5)
+    mu=np.random.uniform(0.5,3.5,self.n_particle)
     td=np.ones((self.n_particle,))*180
 
     y=np.zeros((self.n_particle,))
     pre_y=np.zeros((self.n_particle,))
     Q=np.zeros((self.n_particle,))
+    tip=np.zeros((self.n_particle,))
+    tip_step=np.zeros((self.n_particle,))
 
-    self.particle = np.stack([ita,V,mu,td,y,pre_y,Q]).T
+    y2=np.zeros((self.n_particle,))
+    pre_y2=np.zeros((self.n_particle,))
+    Q2=np.zeros((self.n_particle,))
+    tip2=np.zeros((self.n_particle,))
+    tip_step2=np.zeros((self.n_particle,))
 
+    y3=np.zeros((self.n_particle,))
+    pre_y3=np.zeros((self.n_particle,))
+    Q3=np.zeros((self.n_particle,))
+    tip3=np.zeros((self.n_particle,))
+    tip_step3=np.zeros((self.n_particle,))
+    self.particle = np.stack([ita,V,mu,td,
+                              y,pre_y,Q,tip,tip_step,
+                              y2,pre_y2,Q2,tip2,tip_step2,
+                              y3,pre_y3,Q3,tip3,tip_step3]).T
 
   ####still for two-dimensional variables
   def gaussian_inflation(self,st_inds,a=0.1):
     cov=np.cov(self.particle[:,st_inds].transpose())
-    #print('cov=')
-    #print(cov)
     self.particle[:,st_inds]+=a*np.random.multivariate_normal(np.zeros(len(st_inds)),cov,self.n_particle)
     return
     

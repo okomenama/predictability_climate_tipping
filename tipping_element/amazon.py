@@ -22,7 +22,7 @@ def T_develop(steps,dt,mu,T_start,dTlim,mu0):
     
     return T
 
-def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps):
+def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
     ##This is simpler version of temperature profile
     ##Set dummy threshold d1,d2,d3
     d1=(Tth+dTex-Tst)/r
@@ -35,7 +35,6 @@ def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps):
     +(Tth+dTex-s*(t-d2))*(t<d3)*(t>d2) \
     +Te*(t>d3)
 
-    amp=0
     T+=amp*np.random.randn(steps)*dt
     print('temperature noise :'+str(amp*dt))
 
@@ -245,7 +244,7 @@ def mutual_information(pri_particles,post_particles,##state space variables, n+1
 
 
 if __name__=='__main__':
-    n_ex=1
+    n_ex=2
     s_obs=0.025
     roop=4
     steps=10000 #steps to execute
@@ -253,6 +252,7 @@ if __name__=='__main__':
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
     obs_num=int(10*(2**roop)/2+1) ####Number of observation
     fs=int(200/(2**roop)*2)
+
     if roop==5:
         obs_num=101
         fs=20
@@ -321,7 +321,7 @@ if __name__=='__main__':
     print('likelihood sd:'+str(s_li))
     print('obs_noise:'+str(s_obs))
 
-    seed=20
+    seed=40
     np.random.seed(seed)
     dTex2=0.8
     dtex2=300
@@ -387,7 +387,7 @@ if __name__=='__main__':
 
     st_inds=[g0_ind,Topt_ind,gamma_ind,alpha_ind,beta_ind]
 
-    output='../../output/amazon/result'+str(n_ex)+'_'+str(roop)
+    output='../../output/amazon/lab_hour_result'+str(n_ex)+'_'+str(roop)
     os.mkdir(output)
 
     print('the number of observation is '+str(obs_num))
@@ -535,6 +535,7 @@ if __name__=='__main__':
             pcls_no_obs.particle[:,gamma_ind]
             ,dt,alpha,Tf3,step,epsilon=epsilon
             )
+        
         if step in obs_steps:
             weights=pcls.norm_likelihood(v_obs[step],pcls.particle[:,v_ind],s_li)
             inds=pcls.resampling(weights)
@@ -815,14 +816,14 @@ if __name__=='__main__':
     ax=fig.add_subplot(1,1,1)
     # カラーマップを生成
     cm = plt.cm.get_cmap('RdYlBu')
-    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=3000, cmap=cm)
+    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=3000, cmap=cm,s=1)
     ax.set_title('tipping_area')
     ax.set_xlabel('g0')
     ax.set_ylabel('Topt')
     ax.set_xlim(0,3)
     ax.set_ylim(25,41)
     fig.colorbar(mappable,ax=ax)
-    ax.scatter(x[ineff_ind],y[ineff_ind],color='black')
+    ax.scatter(x[ineff_ind],y[ineff_ind],color='black',s=1)
     fig.savefig(f"{output}/tipping_heatmap.png")
     fig.clf()
     plt.close()
@@ -851,14 +852,14 @@ if __name__=='__main__':
     ax=fig.add_subplot(1,1,1)
     # カラーマップを生成
     cm = plt.cm.get_cmap('RdYlBu')
-    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=3000, cmap=cm)
+    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=3000, cmap=cm,s=1)
     ax.set_title('tipping_area')
     ax.set_xlabel('g0')
     ax.set_ylabel('Topt')
     ax.set_xlim(0,3)
     ax.set_ylim(25,41)
     fig.colorbar(mappable,ax=ax)
-    ax.scatter(x[ineff_ind],y[ineff_ind],color='black')
+    ax.scatter(x[ineff_ind],y[ineff_ind],color='black',s=1)
     fig.savefig(f"{output}/tipping_heatmap2.png")
     fig.clf()
     plt.close()
@@ -887,14 +888,14 @@ if __name__=='__main__':
     ax=fig.add_subplot(1,1,1)
     # カラーマップを生成
     cm = plt.cm.get_cmap('RdYlBu')
-    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=3000, cmap=cm)
+    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=3000, cmap=cm,s=1)
     ax.set_title('tipping_area')
     ax.set_xlabel('g0')
     ax.set_ylabel('Topt')
     ax.set_xlim(0,3)
     ax.set_ylim(25,41)
     fig.colorbar(mappable,ax=ax)
-    ax.scatter(x[ineff_ind],y[ineff_ind],color='black')
+    ax.scatter(x[ineff_ind],y[ineff_ind],color='black',s=1)
     fig.savefig(f"{output}/tipping_heatmap3.png")
     fig.clf()
     plt.close()
