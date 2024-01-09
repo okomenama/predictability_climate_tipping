@@ -33,8 +33,8 @@ def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
     +(Tth+dTex-s*(t-d2))*(t<d3)*(t>=d2) \
     +Te*(t>=d3)
 
-    T+=amp*np.random.randn(steps)*dt
-    print('temperature noise :'+str(amp*dt))
+    T+=amp*np.random.randn(steps)*dt**(0.5)
+    print('temperature noise :'+str(amp*dt**0.5))
 
     return T
 
@@ -74,16 +74,16 @@ if __name__=='__main__':
     yth=0.99
     y_ini=0.2
     ##experimental settings
-    n_ex=3
+    n_ex=4
     steps=10000
-    obs_num=0
-    fs=0 ##observation assimilation frequency
+    obs_num=21
+    fs=100 ##observation assimilation frequency
     s_num=1000
     print('obs_num:'+str(obs_num))
     print('s_num:'+str(s_num))
-    roop=0
-    s_obs=0.1 ##observation noise
-    s_li=0.1 ##likelihood variation
+    roop=7
+    s_obs=0.025*10 ##observation noise
+    s_li=0.025*10 ##likelihood variation
     dt=0.1 ##time step
     pcls=particle.ParticleFilter(s_num)
 
@@ -176,50 +176,40 @@ if __name__=='__main__':
     td=180
 
     ##determine F divelopment
-    Tst=15
+    Tst=13.5
     Tref=16
     dlim=1.5
     Tth=18
-    dTex=0.2
-    Te=Tst+dlim
+    dTex=0.8
     r=(Tth-Tst)/402
-    print('temperature rise speed:'+str(r))
+    Te=Tst+dlim
     s=0.01
-    dtex=80
+    dtex=350
     print('tip time:'+str((Tth-Tst)/r))
     Fref=1.1
     Fth=1.296
     T=np.array([dt*i for i in range(steps)])
     #Ta=T_develop(steps,dt,mu_arr,Tst,dlim,mu0)
-    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps)
+    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=1.5)
     F=F_develop(Ta,Fth,Fref,Tth,Tref)
 
-    Tst=15
-    Tref=16
-    dlim=1.5
-    Tth=18
-    dTex=0.01
-    Te=Tst+dlim
-    r=(Tth-Tst)/402
-    print('temperature rise speed:'+str(r))
-    s=0.01
-    dtex=40
-    print('tip time:'+str((Tth-Tst)/r))
-    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps)
-    F2=F_develop(Ta2,Fth,Fref,Tth,Tref)
-
-    Tst=15
-    Tref=16
-    dlim=1.5
-    Tth=18
     dTex=0.8
-    Te=Tst+dlim
     r=(Tth-Tst)/402
-    print('temperature rise speed:'+str(r))
+    Te=Tst+dlim
     s=0.01
     dtex=300
     print('tip time:'+str((Tth-Tst)/r))
-    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps)
+    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=1.5)
+    F2=F_develop(Ta2,Fth,Fref,Tth,Tref)
+
+    dTex=0.01
+    r=0.0089
+    Tst=Tth-402*r
+    Te=Tst+dlim
+    s=0.01
+    dtex=40
+    print('tip time:'+str((Tth-Tst)/r))
+    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=1.5)
     F3=F_develop(Ta3,Fth,Fref,Tth,Tref)
 
     ##make observation data
@@ -338,6 +328,7 @@ if __name__=='__main__':
 
     ax1 = fig.add_subplot(3,2,1)
     ax1.set_xlim(0,dt*view_steps)
+    ax1.set_ylim(0,30)
     ax1.set_xlabel('yr')
     ax1.set_ylabel('Q')
 

@@ -18,9 +18,9 @@ class ParticleFilter(object):
 
     
   def random_sampling(self):#n_particleの5次元粒子を生成（Have to include the state variables as particle)
-    Topt = rd.uniform(27,34.0,self.n_particle)
+    Topt = rd.uniform(26,34.0,self.n_particle)
     #Topt=np.ones((self.n_particle,))*28
-    g0= rd.uniform(0.8,2.5,self.n_particle)
+    g0= rd.uniform(0,2.5,self.n_particle)
     #gamma = rd.uniform(0.1,0.3,self.n_particle)
     gamma=np.ones((self.n_particle,))*0.2
     alpha=np.ones((self.n_particle,))*5
@@ -63,7 +63,7 @@ class ParticleFilter(object):
       tip2,tip2_step,tip3,tip3_step]).T
 
   def random_sampling_amoc(self):#generate random particles of AMOC model
-    ita=np.random.uniform(10**(-5),5*10**(-5),self.n_particle)
+    ita=np.random.uniform(2*10**(-5),5*10**(-5),self.n_particle)
     V=np.ones((self.n_particle,))*300*4.5*8250
     mu=np.random.uniform(0.5,3.5,self.n_particle)
     td=np.ones((self.n_particle,))*180

@@ -35,7 +35,7 @@ def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
     +(Tth+dTex-s*(t-d2))*(t<d3)*(t>d2) \
     +Te*(t>d3)
 
-    T+=amp*np.random.randn(steps)*dt
+    T+=amp*np.random.randn(steps)*(dt)**0.5
     print('temperature noise :'+str(amp*dt))
 
     return T
@@ -244,12 +244,13 @@ def mutual_information(pri_particles,post_particles,##state space variables, n+1
 
 
 if __name__=='__main__':
-    n_ex=2
+    n_ex=5
     s_obs=0.025
-    roop=4
+    roop=1
     steps=10000 #steps to execute
     dt=0.1
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
+    '''
     obs_num=int(10*(2**roop)/2+1) ####Number of observation
     fs=int(200/(2**roop)*2)
 
@@ -259,18 +260,22 @@ if __name__=='__main__':
     if roop==6:
         obs_num=201
         fs=10
+    '''
+    obs_num=21
+    fs=100
+
     print('obs_num:'+str(obs_num))
     '''
     T_start=32.9
     dTlim=1.5
     Tf=T_develop(steps,dt,mu,T_start,dTlim,mu0)
     '''
-    T_start=32.9
-    Tth=34.7
+    T_start=28
+    Tth=29.8
+    Te=29.1
     dTex=0.2
-    Te=34
     dtex=80
-    r=0.0089
+    r=(Tth-T_start)/202
     s=0.004
     a=0.1
     ##Time when temperature reached the Tth
@@ -316,7 +321,7 @@ if __name__=='__main__':
 
     tip_point=(Tth-T_start)/r
 
-    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps)
+    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=4)
     s_li=s_obs
     print('likelihood sd:'+str(s_li))
     print('obs_noise:'+str(s_obs))
@@ -325,15 +330,15 @@ if __name__=='__main__':
     np.random.seed(seed)
     dTex2=0.8
     dtex2=300
-    r2=0.0089
+    r2=(Tth-T_start)/202
     s2=0.007
-    Tf2=T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps)
+    Tf2=T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=4)
 
     dTex3=0.01
     dtex3=60
-    r3=0.0089
+    r3=(Tth-T_start)/202
     s3=0.004
-    Tf3=T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps)
+    Tf3=T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=4)
 
     Tl_obs=np.zeros((steps,))
     v_obs=np.zeros((steps,))
@@ -701,7 +706,7 @@ if __name__=='__main__':
     ax1.plot(T,np.min(v_results,axis=0),color='gray')
     ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
     ax1.plot(T,v_nonnoise,color='black')
-    ax1.vlines(obs_num, 0, 1, color='g', linestyles='dotted')
+    ax1.vlines((obs_num-1)*fs*dt, 0, 1, color='g', linestyles='dotted')
     
     ax2.plot(T,np.max(Tl_results,axis=0),color='gray')
     ax2.plot(T,np.min(Tl_results,axis=0),color='gray')

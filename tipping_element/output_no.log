@@ -1,0 +1,11 @@
+s_num:1000
+temperature noise :1.2649110640673518
+temperature noise :1.2649110640673518
+temperature noise :1.2649110640673518
+obs_noise:0
+Traceback (most recent call last):
+  File "/Users/amane/Downloads/research/sawada/thesis/tipping_points/coding/pred_tip/tipping_element/./AMOC_tip_num_nonobs.py", line 238, in <module>
+    shutil.move('./output_no.log',output)
+  File "/opt/homebrew/Cellar/python@3.11/3.11.4_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/shutil.py", line 823, in move
+    raise Error("Destination path '%s' already exists" % real_dst)
+shutil.Error: Destination path '../../output/final_result/amoc/scenario_amp4/output_no.log' already exists

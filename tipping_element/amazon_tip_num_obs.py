@@ -11,96 +11,41 @@ import shutil
 
 ##simulation
 if __name__=='__main__':
-    with open('../data/amazon/tip_num3.csv', 'w', encoding='utf-8') as f:
+    with open('../data/final_result/amazon/tip_num_freq.csv', 'w', encoding='utf-8') as f:
         steps=10000 #steps to execute
         dt=0.1
-        #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
-        '''
-        T_start=32.9
-        dTlim=1.5
-        Tf=T_develop(steps,dt,mu,T_start,dTlim,mu0)
-        '''
-        T_start=34
-        Tth=34.7
-        dTex=0.2
-        Te=34
-        dtex=80
-        r=0.0034
-        s=0.01
-        a=0.1
-        '''[0.0089,0.004,0.01,60,'r'],
-        [0.0089,0.005,0.2,80,'m'],
-        [0.0089,0.004,0.8,300,'r'],'''
-
-        ##Time when temperature reached the Tth
-        print('T_start:'+str(T_start))
-        print('Tth:'+str(Tth))
-        print('dTex:'+str(dTex))
-        print('Te:'+str(Te))
-        print('dtex:'+str(dtex))
-        print('r:'+str(r))
-        print('s:'+str(s))
+        tip_num=[]
         s_num=1000 ##number of particles
         print('s_num:'+str(s_num))
-
         r_obs=0
-
-        #cm = plt.cm.get_cmap('RdYlBu_r')
-
-        print('start simulation')
-        ##set initial condition
-        print("make obs data")
-        #make true data of the simulation
-
-        ##make Tf as time varying
-        '''
-        mu_array=np.array([
-        [-0.012,0.00015],
-        [-0.01,0.000135],
-        [-0.008,0.000125],
-        [-0.005,0.00012],
-        [-0.003,0.00011],
-        [-0.001,0.0001],
-        [0.001,0.00009],
-        [0.003,0.00007],
-        [0.01,0.00003]])
-        '''
         epsilon=1 ####time scale param
+        #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
+        T_start=32.9
+        Tth=34.7
+        Te=34
+        dTex=0.8
+        dtex=350
+        r=(Tth-T_start)/202
+        s=0.008
+        Tf=amazon.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=0)
 
-        mu0=0
-        mu1=0.000026
-
-        #for mu0,mu1 in mu_array
-        tip_num=[]
-
-        tip_point=(Tth-T_start)/r
-
-        Tf=amazon.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps)
-        dTex2=0.8
-        dtex2=300
-        r2=0.0034
-        s2=0.013
-        Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps)
+        dTex2=0.2
+        dtex2=100
+        r2=(Tth-T_start)/202
+        s2=0.008
+        Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=0)
 
         dTex3=0.01
-        dtex3=60
-        r3=0.0034
-        s3=0.005
-        Tf3=amazon.T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps)
-        for n_ex,s_obs in [[8,0.025],[9,0.05],[10,0.1],[11,0.2]]:
+        dtex3=40
+        r3=(Tth-T_start)/202
+        s3=0.008
+        Tf3=amazon.T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=0)
+        for s_obs in [0.01,0.025,0.05]:
             print('obs_noise:'+str(s_obs))
             s_li=0
             s_li+=s_obs
             print('likelihood sd:'+str(s_li))
-            for roop in range(1,7,1):
-                obs_num=int(10*(2**roop)/2+1) ####Number of observation
-                fs=int(200/(2**roop)*2)
-                if roop==5:
-                    obs_num=101
-                    fs=20
-                if roop==6:
-                    obs_num=201
-                    fs=10
+            for obs_num,fs in [[90,20],[80,20],[70,20]]:
                 print('obs_num:'+str(obs_num))
                 for seed in range(1,101,1):
                     #seed=3
@@ -162,7 +107,8 @@ if __name__=='__main__':
                     #os.mkdir(output)
 
                     print('the number of observation is '+str(obs_num))
-                    obs_steps=[t*fs for t in range(obs_num)]
+                    obs_steps=[(t+1)*fs for t in range(obs_num)]
+
                     g0_results=np.zeros((pcls.n_particle,steps))
 
                     v_results=np.zeros((pcls.n_particle,steps))
@@ -293,5 +239,5 @@ if __name__=='__main__':
                     #tip_num.append(num/s_num)
                     #print('Tf at the last observation step : '+str(Tf[obs_steps[-1]]))
         # ログファイルを移動
-        output='../../output/amazon/scenario3'
+        output='../../output/final_result/amazon/scenario_freq'
         shutil.move('./output.log', output)    

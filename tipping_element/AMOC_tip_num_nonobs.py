@@ -12,33 +12,17 @@ import shutil
 if __name__=='__main__':
     yth=0.99
     y_ini=0.2
-    with open('../data/amoc/tip_num_non_obs.csv','w',encoding='utf-8') as f:
+    with open('../data/final_result/amoc/tip_num_non_obs_amp4.csv','w',encoding='utf-8') as f:
         steps=10000
         dt=0.1
         ##set Temperature profile
         Tst=15
         Tref=16
+        Te=16.5
         dlim=1.5
         Tth=18
-        dTex=0.2
-        r=0.0089
-        Tst=Tth-402*r
-        Te=Tst+dlim
-        s=0.01
-        dtex=80
-        print('temperature rise speed:'+str(r))
-
         Fref=1.1
-        Fth=1.3
-        T=np.array([dt*i for i in range(steps)])     
-        ##Time when temperature reached the Tth
-        print('T_start:'+str(Tst))
-        print('Tth:'+str(Tth))
-        print('dTex:'+str(dTex))
-        print('Te:'+str(Te))
-        print('dtex:'+str(dtex))
-        print('r:'+str(r))
-        print('s:'+str(s))
+        Fth=1.296
         ##set tue param
         mu=6.2**(0.5)
         ita=3.17*10**(-5)
@@ -47,34 +31,26 @@ if __name__=='__main__':
         s_num=1000 ##number of particles
         print('s_num:'+str(s_num))
 
-        tip_point=(Tth-Tst)/r
-        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps)
+        r=(Tth-Tst)/402
+        s=0.01
+        dTex=0.8
+        dtex=350
+        T=np.array([dt*i for i in range(steps)])     
+
+        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F=AMOC.F_develop(Ta,Fth,Fref,Tth,Tref)
         ##other scenarios
-        Tst=15
-        Tref=16
-        dlim=1.5
-        Tth=18
-        dTex=0.01
-        r=0.0089
-        Tst=Tth-402*r
-        Te=Tst+dlim
-        s=0.01
-        dtex=60
-        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps)
+        dTex=0.2
+        s=0.005
+        dtex=100
+        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F2=AMOC.F_develop(Ta2,Fth,Fref,Tth,Tref)
 
-        Tst=15
-        Tref=16
-        dlim=1.5
-        Tth=18
-        dTex=0.8
-        r=0.0089
-        Tst=Tth-402*r
-        Te=Tst+dlim
-        s=0.01
-        dtex=300
-        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps)
+        dTex=0.01
+        r=(Tth-Tst)/402
+        s=0.005
+        dtex=40
+        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F3=AMOC.F_develop(Ta3,Fth,Fref,Tth,Tref)
 
         s_obs=0
@@ -258,5 +234,5 @@ if __name__=='__main__':
             num3=len(pcls.particle[pcls.particle[:,y3_ind]>yth])
             f.write('{},{},{},{}\n'.format(3,s_obs,obs_num,num3))
 
-        output='../../output/amoc/scenario'
+        output='../../output/final_result/amoc/scenario_amp4'
         shutil.move('./output_no.log',output)
