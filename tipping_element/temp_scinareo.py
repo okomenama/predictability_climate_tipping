@@ -59,13 +59,13 @@ dt=0.1
 steps=10000
 
 params=[
-    [32.9,(Tth-32.9)/202,0.008,0.8,350,'r']
+    [32.9,(Tth-32.9)/202,0.008,-0.1,-10,'r']
     #[32.9,(Tth-32.9)/202,0.008,0.2,100,'g'],
     #[32.9,(Tth-32.9)/202,0.008,0.01,40,'b']
 ]
 ##温度のプロファイルを図示する
 T=np.array([t*dt for t in range(steps)])
-output='./output/final_result/amazon'
+output='../../output/amazon'
 fig=plt.figure()
 ax1=fig.add_subplot(2,1,1)
 ax1.set_xlim(0,dt*steps)
@@ -84,7 +84,8 @@ for T_start,r,s,dTex,dtex,c in params:
     v_obs=np.zeros((steps,))
     g_obs=np.zeros((steps,))
     epsilon=1
-    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+    np.random.seed(1)
+    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=1)
     Runge_Kutta_dynamics(v_obs,Tl_obs,g_obs,steps,Tf,epsilon=epsilon)
     ax1.plot(T,Tf,color=c)
     ax2.plot(T,v_obs,color=c)

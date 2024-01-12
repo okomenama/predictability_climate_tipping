@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-data_path='../data/final_result/amazon/tip_num_amp4.csv'
-no_obs_data_path='../data/final_result/amazon/tip_num_non_obs_amp4.csv'
+data_path='../data/final_result/amoc/tip_num_amp4.csv'
+no_obs_data_path='../data/final_result/amoc/tip_num_non_obs_amp4.csv'
 
 data=pd.read_csv(data_path,header=None)
 no_obs_data=pd.read_csv(no_obs_data_path,header=None)
@@ -41,7 +41,7 @@ for i,group in group_data:
         'group:{},v_obs:{},num:{}'.format(
             group.iat[0,0],group.iat[0,1],group.iat[0,2]))
     plt.savefig(
-        '../../output/final_result/amazon/scenario_amp4/group_{}_{}_{}.png'.format(
+        '../../output/final_result/amoc/scenario_amp4/group_{}_{}_{}.png'.format(
             group.iat[0,0],group.iat[0,1],group.iat[0,2]))
     plt.close()
     plt.clf()
@@ -74,7 +74,7 @@ for i,group in group_data:
         plt.axis('off')
 
 plt.savefig(
-    '../../output/final_result/amazon/scenario_amp4/all_hist_1.png')
+    '../../output/final_result/amoc/scenario_amp4/all_hist_1.png')
 plt.close()
 plt.clf()
 
@@ -104,7 +104,7 @@ for i,group in group_data:
         plt.axis('off')
 
 plt.savefig(
-    '../../output/final_result/amazon/scenario_amp4/all_hist_2.png')
+    '../../output/final_result/amoc/scenario_amp4/all_hist_2.png')
 plt.close()
 plt.clf()
 
@@ -114,7 +114,7 @@ plt.figure(1)
 
 for i,group in group_data:
     group_num=group.iat[0,0]
-    if group_num==1:
+    if group_num==3:
 
         group_obs_ind=(group.iat[0,2]==0.01)*0
         group_obs_ind=(group.iat[0,1]==0.025)*1
@@ -136,7 +136,7 @@ for i,group in group_data:
         plt.axis('off')
 
 plt.savefig(
-    '../../output/final_result/amazon/scenario_amp4/all_hist_3.png')
+    '../../output/final_result/amoc/scenario_amp4/all_hist_3.png')
 plt.close()
 plt.clf()
 
@@ -161,7 +161,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario_amp4/group1_accuracy_mean_map.png')
+plt.savefig('../../output/final_result/amoc/scenario_amp4/group1_accuracy_mean_map.png')
 plt.close()
 plt.clf()
 ##group1 mvar
@@ -172,7 +172,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario_amp4/group1_accuracy_var_map.png')
+plt.savefig('../../output/final_result/amoc/scenario_amp4/group1_accuracy_var_map.png')
 plt.close()
 plt.clf()
 ##group2 mean
@@ -185,7 +185,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario_amp4/group2_accuracy_mean_map.png')
+plt.savefig('../../output/final_result/amoc/scenario_amp4/group2_accuracy_mean_map.png')
 plt.close()
 plt.clf()
 ##group2 var
@@ -196,7 +196,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario_amp4/group2_accuracy_var_map.png')
+plt.savefig('../../output/final_result/amoc/scenario_amp4/group2_accuracy_var_map.png')
 plt.close()
 plt.clf()
 ##group3 mean
@@ -209,7 +209,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario_amp4/group3_accuracy_mean_map.png')
+plt.savefig('../../output/final_result/amoc/scenario_amp4/group3_accuracy_mean_map.png')
 plt.close()
 plt.clf()
 ##group3 var
@@ -220,6 +220,6 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario_amp4/group3_accuracy_var_map.png')
+plt.savefig('../../output/final_result/amoc/scenario_amp4/group3_accuracy_var_map.png')
 plt.close()
 plt.clf()

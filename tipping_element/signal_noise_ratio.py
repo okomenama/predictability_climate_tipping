@@ -25,7 +25,7 @@ Tf=amazon.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps)
 amazon.Runge_Kutta_dynamics(v,Tl,g,steps,Tf)
 ama_sn=np.diff(Tl)/np.diff(v)
 
-T_amp=0.2
+T_amp=1
 s_obs1=0.025*1
 s_obs2=0.05*1
 s_obs3=0.1*1
@@ -57,17 +57,14 @@ with open('../data/amazon/signal_ratio.csv','w',encoding='utf-8') as f:
 steps=4000
 Tst=15
 Tref=16
+Te=16.5
 dlim=1.5
 Tth=18
-dTex=0.2
-r=0.0089
-Tst=Tth-402*r
-Te=Tst+dlim
-s=0.01
-dtex=80
-
-Fth=1.296
 Fref=1.1
+Fth=1.296
+s=0.01
+dTex=0.8
+dtex=350
 
 y=np.zeros((steps,))
 y[0]=0.2
@@ -85,11 +82,11 @@ Q=AMOC.salinity_flux_to_flow_strength(mu,y,td,ita,V)
 
 amo_sn=np.diff(Ta)/np.diff(Q)
 
-T_amp=0.2
-s_obs1=0.025*10
-s_obs2=0.05*10
-s_obs3=0.1*10
-s_obs4=0.2*10
+T_amp=1
+s_obs1=0.01*10
+s_obs2=0.025*10
+s_obs3=0.05*10
+s_obs4=0.1*10
 
 n_s1=T_amp/s_obs1/np.abs(amo_sn)
 n_s2=T_amp/s_obs2/np.abs(amo_sn)
@@ -98,10 +95,10 @@ n_s4=T_amp/s_obs4/np.abs(amo_sn)
 
 fig=plt.figure()
 ax=fig.add_subplot(1,1,1)
-ax.plot(T[100:-1],n_s1[100:],c='r',label='0.025')
-ax.plot(T[100:-1],n_s2[100:],c='m',label='0.05')
-ax.plot(T[100:-1],n_s3[100:],c='g',label='0.1')
-ax.plot(T[100:-1],n_s4[100:],c='b',label='0.2')
+ax.plot(T[100:-1],n_s1[100:],c='r',label='0.01')
+ax.plot(T[100:-1],n_s2[100:],c='m',label='0.025')
+ax.plot(T[100:-1],n_s3[100:],c='g',label='0.05')
+ax.plot(T[100:-1],n_s4[100:],c='b',label='0.1')
 plt.legend()
 fig.savefig('../../output/amoc/scenario/noise_signal_ratio2.png')
 fig.clf()

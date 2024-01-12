@@ -11,7 +11,7 @@ import shutil
 
 ##simulation
 if __name__=='__main__':
-    with open('../data/final_result/amazon/tip_num_freq.csv', 'w', encoding='utf-8') as f:
+    with open('../data/final_result/amazon/tip_num_amp1_n.csv', 'w', encoding='utf-8') as f:
         steps=10000 #steps to execute
         dt=0.1
         tip_num=[]
@@ -35,17 +35,18 @@ if __name__=='__main__':
         s2=0.008
         Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=0)
 
-        dTex3=0.01
-        dtex3=40
+        dTex3=-0.1
+        dtex3=-10
         r3=(Tth-T_start)/202
         s3=0.008
+        np.random.seed(1)
         Tf3=amazon.T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=0)
-        for s_obs in [0.01,0.025,0.05]:
+        for s_obs in [0.01,0.025,0.05,0.1,0.2]:
             print('obs_noise:'+str(s_obs))
             s_li=0
             s_li+=s_obs
             print('likelihood sd:'+str(s_li))
-            for obs_num,fs in [[90,20],[80,20],[70,20]]:
+            for obs_num,fs in [[10,200],[20,100],[40,50],[80,25],[100,20],[200,10]]:
                 print('obs_num:'+str(obs_num))
                 for seed in range(1,101,1):
                     #seed=3
@@ -239,5 +240,5 @@ if __name__=='__main__':
                     #tip_num.append(num/s_num)
                     #print('Tf at the last observation step : '+str(Tf[obs_steps[-1]]))
         # ログファイルを移動
-        output='../../output/final_result/amazon/scenario_freq'
+        output='../../output/final_result/amazon/scenario_amp1'
         shutil.move('./output.log', output)    

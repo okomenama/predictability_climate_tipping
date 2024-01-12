@@ -11,11 +11,11 @@ import shutil
 
 if __name__=='__main__':
     yth=0.99
-    with open('../data/final_result/amoc/tip_num1.csv','w',encoding='utf-8') as f:
+    with open('../data/final_result/amoc/tip_num_freq_amp4.csv','w',encoding='utf-8') as f:
         steps=10000
         dt=0.1
         ##set Temperature profile
-        Tst=16.5
+        Tst=15
         Tref=16
         Te=16.5
         dlim=1.5
@@ -36,24 +36,25 @@ if __name__=='__main__':
         dtex=350
         T=np.array([dt*i for i in range(steps)])     
 
-        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F=AMOC.F_develop(Ta,Fth,Fref,Tth,Tref)
         ##other scenarios
         dTex=0.2
         s=0.005
         dtex=100
-        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F2=AMOC.F_develop(Ta2,Fth,Fref,Tth,Tref)
 
         dTex=0.01
         r=(Tth-Tst)/402
         s=0.005
         dtex=40
-        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+        #np.random.seed(1)
+        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F3=AMOC.F_develop(Ta3,Fth,Fref,Tth,Tref)
 
         y_ini=0.2
-        for r_obs in [0.01,0.025,0.05,0.1,0.2]:
+        for r_obs in [0.01,0.025,0.05,0.1]:
             s_obs=r_obs*10
             print('obs_noise:'+str(s_obs))
             s_li=0
@@ -64,7 +65,7 @@ if __name__=='__main__':
                                [101,20],[201,10]]:
             '''
 
-            for obs_num,fs in [[10,200],[20,100],[40,50],[80,25],[100,20],[200,10]]:
+            for obs_num,fs in [[90,20],[80,20],[70,20]]:
                 print('obs_num:'+str(obs_num))
                 print('fs:'+str(fs))
                 for seed in range(1,101,1):
@@ -79,7 +80,7 @@ if __name__=='__main__':
                     Q_obs=AMOC.salinity_flux_to_flow_strength(
                         mu,y_obs,td,ita,V)
                     Q_obs_nonnoise=Q_obs.copy()
-                    Q_obs+=np.random.randn(steps)*s_obs*dt**0.5
+                    Q_obs+=np.random.randn(steps)*s_obs
                     ##start data assimilation 
                     pcls=particle.ParticleFilter(s_num)
                     ##set particles indexes
@@ -266,5 +267,5 @@ if __name__=='__main__':
 
                     num3=len(pcls.particle[pcls.particle[:,y3_ind]>yth])
                     f.write('{},{},{},{}\n'.format(3,r_obs,obs_num,num3))
-        output='../../output/final_result/amoc/scenario1'
+        output='../../output/final_result/amoc/scenario_freq_amp4'
         shutil.move('./output.log',output)
