@@ -11,7 +11,7 @@ import shutil
 
 if __name__=='__main__':
     yth=0.99
-    with open('../data/final_result/amoc/tip_num_freq_amp4.csv','w',encoding='utf-8') as f:
+    with open('../data/final_result/amoc/tip_num_amp4_n.csv','w',encoding='utf-8') as f:
         steps=10000
         dt=0.1
         ##set Temperature profile
@@ -45,16 +45,16 @@ if __name__=='__main__':
         Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F2=AMOC.F_develop(Ta2,Fth,Fref,Tth,Tref)
 
-        dTex=0.01
+        dTex=-0.1
         r=(Tth-Tst)/402
         s=0.005
-        dtex=40
-        #np.random.seed(1)
+        dtex=-10
+        np.random.seed(2)
         Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
         F3=AMOC.F_develop(Ta3,Fth,Fref,Tth,Tref)
 
         y_ini=0.2
-        for r_obs in [0.01,0.025,0.05,0.1]:
+        for r_obs in [0.01,0.025,0.05,0.1,0.2]:
             s_obs=r_obs*10
             print('obs_noise:'+str(s_obs))
             s_li=0
@@ -65,7 +65,7 @@ if __name__=='__main__':
                                [101,20],[201,10]]:
             '''
 
-            for obs_num,fs in [[90,20],[80,20],[70,20]]:
+            for obs_num,fs in [[10,200],[20,100],[40,50],[80,25],[100,20],[200,10]]:
                 print('obs_num:'+str(obs_num))
                 print('fs:'+str(fs))
                 for seed in range(1,101,1):
@@ -267,5 +267,5 @@ if __name__=='__main__':
 
                     num3=len(pcls.particle[pcls.particle[:,y3_ind]>yth])
                     f.write('{},{},{},{}\n'.format(3,r_obs,obs_num,num3))
-        output='../../output/final_result/amoc/scenario_freq_amp4'
+        output='../../output/final_result/amoc/scenario_amp4_n'
         shutil.move('./output.log',output)

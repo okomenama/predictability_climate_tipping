@@ -18,12 +18,12 @@ td=180
 
 Tst=15
 params=[
-    [Tst,(Tth-Tst)/402,0.010,0.8,350,'r']
+    #[Tst,(Tth-Tst)/402,0.010,0.8,350,'r']
     #,[Tst,(Tth-Tst)/402,0.005,0.2,100,'g']
-    #,[Tst,(Tth-Tst)/402,0.005,0.01,40,'b']
+    [Tst,(Tth-Tst)/402,0.005,-0.1,-10,'b']
 ]
 T=np.array([t*dt for t in range(steps)])
-output='../../output/final_result/amoc'
+output='../../output/amoc'
 fig=plt.figure()
 ax1=fig.add_subplot(2,1,1)
 ax1.set_xlim(0,dt*steps)
@@ -39,6 +39,7 @@ ax2.set_xlabel('time(years)')
 for T_start,r,s,dTex,dtex,c in params:
     y_obs=np.zeros((steps,))
     epsilon=1
+    np.random.seed(2)
     Ta=AMOC.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=4)
     F=AMOC.F_develop(Ta,Fth,Fref,Tth,Tref)
     AMOC.Runge_Kutta_dynamics(F,y_obs,mu,steps,dt)

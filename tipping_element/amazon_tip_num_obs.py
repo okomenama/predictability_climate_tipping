@@ -11,7 +11,7 @@ import shutil
 
 ##simulation
 if __name__=='__main__':
-    with open('../data/final_result/amazon/tip_num_amp1_n.csv', 'w', encoding='utf-8') as f:
+    with open('../data/final_result/amazon/tip_num_amp4_n.csv', 'w', encoding='utf-8') as f:
         steps=10000 #steps to execute
         dt=0.1
         tip_num=[]
@@ -27,20 +27,20 @@ if __name__=='__main__':
         dtex=350
         r=(Tth-T_start)/202
         s=0.008
-        Tf=amazon.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+        Tf=amazon.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=4)
 
         dTex2=0.2
         dtex2=100
         r2=(Tth-T_start)/202
         s2=0.008
-        Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=0)
+        Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=4)
 
         dTex3=-0.1
         dtex3=-10
         r3=(Tth-T_start)/202
         s3=0.008
         np.random.seed(1)
-        Tf3=amazon.T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=0)
+        Tf3=amazon.T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=4)
         for s_obs in [0.01,0.025,0.05,0.1,0.2]:
             print('obs_noise:'+str(s_obs))
             s_li=0
@@ -240,5 +240,5 @@ if __name__=='__main__':
                     #tip_num.append(num/s_num)
                     #print('Tf at the last observation step : '+str(Tf[obs_steps[-1]]))
         # ログファイルを移動
-        output='../../output/final_result/amazon/scenario_amp1'
+        output='../../output/final_result/amazon/scenario_amp4_n'
         shutil.move('./output.log', output)    
