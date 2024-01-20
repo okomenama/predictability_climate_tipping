@@ -74,16 +74,16 @@ if __name__=='__main__':
     yth=0.99
     y_ini=0.2
     ##experimental settings
-    n_ex=4
+    n_ex=1
     steps=10000
-    obs_num=21
-    fs=100 ##observation assimilation frequency
+    obs_num=40
+    fs=50 ##observation assimilation frequency
     s_num=1000
     print('obs_num:'+str(obs_num))
     print('s_num:'+str(s_num))
-    roop=7
-    s_obs=0.025*10 ##observation noise
-    s_li=0.025*10 ##likelihood variation
+    roop=2
+    s_obs=0.2*10 ##observation noise
+    s_li=0.2*10 ##likelihood variation
     dt=0.1 ##time step
     pcls=particle.ParticleFilter(s_num)
 
@@ -114,12 +114,12 @@ if __name__=='__main__':
     p_num=7 ##dimension of the parameter set
 
     st_inds=[ita_ind,V_ind,mu_ind,td_ind] ##list of stochastic parameters
-    output='../../output/amoc/experitment'+str(n_ex)+'_'+str(roop)
+    output='../../output/final_result/amoc/example'+str(n_ex)+'_'+str(roop)
     os.mkdir(output)
 
     gap=200
 
-    obs_steps=[int(gap/dt)+t*fs for t in range(obs_num)] ##observation steps
+    obs_steps=[int(gap/dt)+(t+1)*fs for t in range(obs_num)] ##observation steps
     ##initial condition
     pcls.random_sampling_amoc()
     ##set results arrays
@@ -176,7 +176,7 @@ if __name__=='__main__':
     td=180
 
     ##determine F divelopment
-    Tst=13.5
+    Tst=15
     Tref=16
     dlim=1.5
     Tth=18
@@ -190,26 +190,25 @@ if __name__=='__main__':
     Fth=1.296
     T=np.array([dt*i for i in range(steps)])
     #Ta=T_develop(steps,dt,mu_arr,Tst,dlim,mu0)
-    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=1.5)
+    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
     F=F_develop(Ta,Fth,Fref,Tth,Tref)
 
-    dTex=0.8
+    dTex=0.2
     r=(Tth-Tst)/402
     Te=Tst+dlim
     s=0.01
-    dtex=300
+    dtex=80
     print('tip time:'+str((Tth-Tst)/r))
-    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=1.5)
+    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
     F2=F_develop(Ta2,Fth,Fref,Tth,Tref)
 
     dTex=0.01
-    r=0.0089
-    Tst=Tth-402*r
+    r=(Tth-Tst)/402
     Te=Tst+dlim
     s=0.01
     dtex=40
     print('tip time:'+str((Tth-Tst)/r))
-    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=1.5)
+    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
     F3=F_develop(Ta3,Fth,Fref,Tth,Tref)
 
     ##make observation data
@@ -323,32 +322,116 @@ if __name__=='__main__':
         Q3_results[:,step]+=pcls.particle[:,Q3_ind] 
 
     ##Write result map
-    fig=plt.figure(figsize=(10,9))
     view_steps=steps
-
-    ax1 = fig.add_subplot(3,2,1)
+    fig=plt.figure(figsize=(3,2))
+    ax1 = fig.add_subplot(1,1,1)
     ax1.set_xlim(0,dt*view_steps)
     ax1.set_ylim(0,30)
     ax1.set_xlabel('yr')
     ax1.set_ylabel('Q')
+    ax1.plot(T,np.max(Q_results,axis=0),color='gray',linestyle='solid')
+    ax1.plot(T,np.min(Q_results,axis=0),color='gray',linestyle='solid')
+    ax1.scatter(T[obs_steps],Q_obs[obs_steps],color='blue',linestyle='solid')
+    ax1.plot(T,Q_obs_nonnoise,color='black',linestyle='solid')
+    fig.savefig(output+'/Q_result1.png')
+    plt.clf()
+    plt.close()
 
-    ax2 = fig.add_subplot(3,2,2)
+    fig=plt.figure(figsize=(3,2))
+    ax1 = fig.add_subplot(1,1,1)
+    ax1.set_xlim(0,dt*view_steps)
+    ax1.set_ylim(0,30)
+    ax1.set_xlabel('yr')
+    ax1.set_ylabel('Q')
+    ax1.plot(T,np.max(Q2_results,axis=0),color='gray',linestyle='solid')
+    ax1.plot(T,np.min(Q2_results,axis=0),color='gray',linestyle='solid')
+    ax1.scatter(T[obs_steps],Q_obs[obs_steps],color='blue',linestyle='solid')
+    ax1.plot(T,Q2_obs_nonnoise,color='black',linestyle='solid')
+    fig.savefig(output+'/Q_result2.png')
+    plt.clf()
+    plt.close()
+
+    fig=plt.figure(figsize=(3,2))
+    ax1 = fig.add_subplot(1,1,1)
+    ax1.set_xlim(0,dt*view_steps)
+    ax1.set_ylim(0,30)
+    ax1.set_xlabel('yr')
+    ax1.set_ylabel('Q')
+    ax1.plot(T,np.max(Q3_results,axis=0),color='gray',linestyle='solid')
+    ax1.plot(T,np.min(Q3_results,axis=0),color='gray',linestyle='solid')
+    ax1.scatter(T[obs_steps],Q_obs[obs_steps],color='blue',linestyle='solid')
+    ax1.plot(T,Q3_obs_nonnoise,color='black',linestyle='solid')
+    fig.savefig(output+'/Q_result3.png')
+    plt.clf()
+    plt.close()
+
+    fig=plt.figure(figsize=(3,2))
+    ax2= fig.add_subplot(1,1,1)
     ax2.set_xlim(0,dt*view_steps)
+    ax2.set_ylim(0,30)
     ax2.set_xlabel('yr')
-    ax2.set_xlabel('y')
-    ax2.set_xlim(0,dt*steps)
-    ax2.set_ylim(0,1.5)
+    ax2.set_ylabel('y')
+    ax2.plot(T,np.max(y_results,axis=0),color='gray',linestyle='solid')
+    ax2.plot(T,np.min(y_results,axis=0),color='gray',linestyle='solid')
+    ax2.plot(T,y_obs,color='black',linestyle='solid')
+    ax2.vlines((obs_num+1)*fs*dt+gap,0,2,color='y', linestyle='dotted')
+    fig.savefig(output+'/y_result1.png')
+    plt.clf()
+    plt.close()
 
-    ax3=fig.add_subplot(3,2,3)
+    fig=plt.figure(figsize=(3,2))
+    ax2 = fig.add_subplot(1,1,1)
+    ax2.set_xlim(0,dt*view_steps)
+    ax2.set_ylim(0,30)
+    ax2.set_xlabel('yr')
+    ax2.set_ylabel('y')
+    ax2.plot(T,np.max(y2_results,axis=0),color='gray',linestyle='solid')
+    ax2.plot(T,np.min(y2_results,axis=0),color='gray',linestyle='solid')
+    ax2.plot(T,y2_obs,color='black',linestyle='solid')
+    ax2.vlines((obs_num+1)*fs*dt+gap,0,2,color='y', linestyle='dotted')
+    fig.savefig(output+'/y_result2.png')
+    plt.clf()
+    plt.close()
+
+    fig=plt.figure(figsize=(3,2))
+    ax2 = fig.add_subplot(1,1,1)
+    ax2.set_xlim(0,dt*view_steps)
+    ax2.set_ylim(0,30)
+    ax2.set_xlabel('yr')
+    ax2.set_ylabel('y')
+    ax2.plot(T,np.max(y3_results,axis=0),color='gray',linestyle='solid')
+    ax2.plot(T,np.min(y3_results,axis=0),color='gray',linestyle='solid')
+    ax2.plot(T,y3_obs,color='black',linestyle='solid')
+    ax2.vlines((obs_num+1)*fs*dt+gap,0,2,color='y', linestyle='dotted')
+    fig.savefig(output+'/y_result3.png')
+    plt.clf()
+    plt.close()
+
+    fig=plt.figure(figsize=(3,2))
+    ax3=fig.add_subplot(1,1,1)
     ax3.set_xlim(0,dt*view_steps)
     ax3.set_xlabel('yr')
     ax3.set_ylabel('ita')
+    ax3.plot(T,np.max(ita_results,axis=0),color='gray',linestyle='solid')
+    ax3.plot(T,np.min(ita_results,axis=0),color='gray',linestyle='solid')
+    ax3.plot(T,[ita for i in range(len(T))],color='black',linestyle='solid')
+    ax3.vlines((obs_num+1)*fs*dt+gap, 0,0.0001,color='g',linestyle='dotted')
+    fig.savefig(output+'/ita_result.png')
+    plt.clf()
+    plt.close()
 
-    ax4=fig.add_subplot(3,2,4)
+    fig=plt.figure(figsize=(3,2))
+    ax4=fig.add_subplot(1,1,1)
     ax4.set_xlim(0,dt*view_steps)
     ax4.set_xlabel('yr')
-    ax4.set_ylabel('F')
-
+    ax4.set_ylabel('mu')
+    ax4.plot(T,np.min(mu_results,axis=0),color='gray',linestyle='solid')
+    ax4.plot(T,np.min(mu_results,axis=0),color='gray',linestyle='solid')
+    ax4.plot(T,[mu for i in range(len(T))],color='black',linestyle='solid')
+    fig.savefig(output+'/mu_result.png')
+    plt.clf()
+    plt.close()
+    '''
     ax5=fig.add_subplot(3,2,5)
     ax5.set_xlabel('F')
     ax5.set_ylabel('y steady')
@@ -357,20 +440,6 @@ if __name__=='__main__':
     ax6.set_xlim(0,dt*view_steps)
     ax6.set_xlabel('yr')
     ax6.set_ylabel('temperature')
-
-    ax1.plot(T,np.max(Q_results,axis=0),color='gray',linestyle='solid')
-    ax1.plot(T,np.min(Q_results,axis=0),color='gray',linestyle='solid')
-    ax1.scatter(T[obs_steps],Q_obs_nonnoise[obs_steps],color='blue',linestyle='solid')
-    ax1.plot(T,Q_obs_nonnoise,color='black',linestyle='solid')
-
-    ax1.plot(T,np.max(Q2_results,axis=0),color='gray',linestyle='dashed')
-    ax1.plot(T,np.min(Q2_results,axis=0),color='gray',linestyle='dashed')
-    ax1.plot(T,Q2_obs_nonnoise,color='black',linestyle='dashed')
-
-    ax1.plot(T,np.max(Q3_results,axis=0),color='gray',linestyle='dashdot')
-    ax1.plot(T,np.min(Q3_results,axis=0),color='gray',linestyle='dashdot')
-    ax1.plot(T,Q3_obs_nonnoise,color='black',linestyle='dashdot')
-    ax1.vlines(obs_num*fs*dt+gap,0, 10, color='g', linestyle='dotted')
 
     ax2.plot(T,np.max(y_results,axis=0),color='gray',linestyle='solid')
     ax2.plot(T,np.min(y_results,axis=0),color='gray',linestyle='solid')
@@ -396,7 +465,8 @@ if __name__=='__main__':
     #ax4.plot(T,[V for i in range(steps)],color='black')
     ax4.hlines(Fth,0,view_steps,color='g',linestyle='dotted')
     ax4.vlines(obs_num*fs*dt+gap, 0.5, 2.5, color='g', linestyle='dotted')
-
+    '''
+    '''
     ax6.plot(T,Ta,color='black',linestyle='solid')
     ax6.plot(T,Ta2,color='black',linestyle='dashed')
     ax6.plot(T,Ta3,color='black',linestyle='dashdot')
@@ -412,7 +482,8 @@ if __name__=='__main__':
     ax5.scatter(ans[:,0],ans[:,1],s=5,color='black')
 
     ax5.plot(F,y_obs,c='blue')
-
+    '''
+    '''
     ax1.plot(T,Q_results.mean(axis=0),color='red',linestyle='solid')
     ax1.plot(T,Q2_results.mean(axis=0),color='red',linestyle='dashed')
     ax1.plot(T,Q3_results.mean(axis=0),color='red',linestyle='dashdot')
@@ -426,13 +497,16 @@ if __name__=='__main__':
     ax4.plot(T,F,color='black',linestyle='solid')
     ax4.plot(T,F2,color='black',linestyle='dashed')
     ax4.plot(T,F3,color='black',linestyle='dashdot')
-
+    '''
+    '''
     ax5.plot(F,y_results.mean(axis=0),color='red',linestyle='solid')
     ax5.plot(F,y2_results.mean(axis=0),color='red',linestyle='dashed')
     ax5.plot(F,y3_results.mean(axis=0),color='red',linestyle='dashdot')
+    '''
+    '''
     fig.savefig(output+'/result.png')
     fig.clf()
-
+    '''
     ##scenatio1
     tip_time=np.zeros((pcls.n_particle,4))
     tip_time+=pcls.particle[:,[ita_ind,mu_ind,tip_step_ind,tip_ind]]

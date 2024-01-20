@@ -31,9 +31,9 @@ def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
 
     t=np.array([i*dt for i in range(steps)])
     T=(Tst+r*t)*(t<d1) \
-    +(Tth+dTex)*(t>d1)*(t<d2) \
-    +(Tth+dTex-s*(t-d2))*(t<d3)*(t>d2) \
-    +Te*(t>d3)
+    +(Tth+dTex)*(t>=d1)*(t<d2) \
+    +(Tth+dTex-s*(t-d2))*(t<d3)*(t>=d2) \
+    +Te*(t>=d3)
 
     T+=amp*np.random.randn(steps)*(dt)**0.5
     print('temperature noise :'+str(amp*dt))
@@ -244,7 +244,7 @@ def mutual_information(pri_particles,post_particles,##state space variables, n+1
 
 
 if __name__=='__main__':
-    n_ex=5
+    n_ex=1
     s_obs=0.025
     roop=1
     steps=10000 #steps to execute
@@ -261,8 +261,8 @@ if __name__=='__main__':
         obs_num=201
         fs=10
     '''
-    obs_num=21
-    fs=100
+    obs_num=40
+    fs=50
 
     print('obs_num:'+str(obs_num))
     '''
@@ -270,11 +270,11 @@ if __name__=='__main__':
     dTlim=1.5
     Tf=T_develop(steps,dt,mu,T_start,dTlim,mu0)
     '''
-    T_start=28
-    Tth=29.8
-    Te=29.1
-    dTex=0.2
-    dtex=80
+    T_start=32.9
+    Tth=34.7
+    Te=34
+    dTex=0.8
+    dtex=350
     r=(Tth-T_start)/202
     s=0.004
     a=0.1
@@ -321,30 +321,40 @@ if __name__=='__main__':
 
     tip_point=(Tth-T_start)/r
 
-    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=0)
     s_li=s_obs
     print('likelihood sd:'+str(s_li))
     print('obs_noise:'+str(s_obs))
 
     seed=40
     np.random.seed(seed)
-    dTex2=0.8
-    dtex2=300
+    dTex2=0.2
+    dtex2=80
     r2=(Tth-T_start)/202
     s2=0.007
-    Tf2=T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=4)
+    Tf2=T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=0)
 
     dTex3=0.01
-    dtex3=60
+    dtex3=40
     r3=(Tth-T_start)/202
     s3=0.004
-    Tf3=T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=4)
+    Tf3=T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=0)
 
     Tl_obs=np.zeros((steps,))
+    Tl2_obs=np.zeros((steps,))
+    Tl3_obs=np.zeros((steps,))
     v_obs=np.zeros((steps,))
+    v2_obs=np.zeros((steps,))
+    v3_obs=np.zeros((steps,))
     g_obs=np.zeros((steps,))
+    g2_obs=np.zeros((steps,))
+    g3_obs=np.zeros((steps,))
     Runge_Kutta_dynamics(v_obs,Tl_obs,g_obs,steps,Tf,epsilon=epsilon)
     v_nonnoise=v_obs.copy()
+    Runge_Kutta_dynamics(v2_obs,Tl2_obs,g2_obs,steps,Tf2,epsilon=epsilon)
+    v2_nonnoise=v2_obs.copy()
+    Runge_Kutta_dynamics(v3_obs,Tl3_obs,g3_obs,steps,Tf3,epsilon=epsilon)
+    v3_nonnoise=v3_obs.copy()
     print('smoothing steps:'+str(r_obs*fs))
     v_obs+=np.random.randn(steps)*s_obs
     ##set simple model initial conditions 
@@ -392,11 +402,11 @@ if __name__=='__main__':
 
     st_inds=[g0_ind,Topt_ind,gamma_ind,alpha_ind,beta_ind]
 
-    output='../../output/amazon/lab_hour_result'+str(n_ex)+'_'+str(roop)
+    output='../../output/final_result/amazon/example'+str(n_ex)+'_'+str(roop)
     os.mkdir(output)
 
     print('the number of observation is '+str(obs_num))
-    obs_steps=[t*fs for t in range(obs_num)]
+    obs_steps=[(t+1)*fs for t in range(obs_num)]
     g0_results=np.zeros((pcls.n_particle,steps))
 
     v_results=np.zeros((pcls.n_particle,steps))
@@ -412,7 +422,7 @@ if __name__=='__main__':
     g3_results=np.zeros((pcls.n_particle,steps))
 
     gamma_results=np.zeros((pcls.n_particle,steps))
-
+    Topt_results=np.zeros((pcls.n_particle,steps))
     v_results[:,0]=0.8
     Tl_results[:,0]=T_start+alpha*(1-v_results[:,0])
 
@@ -650,6 +660,7 @@ if __name__=='__main__':
         g_results[:,step]+=pcls.particle[:,g_ind]
         gamma_results[:,step]+=pcls.particle[:,gamma_ind]
         g0_results[:,step]+=pcls.particle[:,g0_ind]
+        Topt_results[:,step]+=pcls.particle[:,Topt_ind]
 
         v2_results[:,step]+=pcls.particle[:,v2_ind]
         Tl2_results[:,step]+=pcls.particle[:,Tl2_ind]
@@ -662,33 +673,64 @@ if __name__=='__main__':
     print('write graphs')
 
     ##結果画像をここに描く
-    fig = plt.figure(figsize=(10,9))
     view_steps=10000
 
-    ax1 = fig.add_subplot(3,2,1)
+    fig = plt.figure(figsize=(5,4))
+    ax1 = fig.add_subplot(1,1,1)
     ax1.set_xlim(0,dt*view_steps)
     ax1.set_xlabel('yr')
     ax1.set_ylim(0,1)
     ax1.set_ylabel('TP ratio')
+    ax1.plot(T,np.max(v_results,axis=0),color='gray')
+    ax1.plot(T,np.min(v_results,axis=0),color='gray')
+    ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
+    ax1.plot(T,v_nonnoise,color='black')
+    ax1.plot(T,v_results.mean(axis=0),color='red') 
+    ax1.vlines((obs_num+1)*fs*dt, 0, 1, color='g', linestyles='dotted')
+    plt.savefig(output+'/v1_result.png')
+    plt.clf()
+    plt.close()
 
-    ax2 = fig.add_subplot(3,2,2)
-    ax2.set_xlim(0,dt*view_steps)
-    ax2.set_xlabel('yr')
-    ax2.set_ylim(20,45)
-    ax2.set_xlabel('Tl(degree Celcius)')
+    fig = plt.figure(figsize=(5,4))
+    ax1 = fig.add_subplot(1,1,1)
+    ax1.set_xlim(0,dt*view_steps)
+    ax1.set_xlabel('yr')
+    ax1.set_ylim(0,1)
+    ax1.set_ylabel('TP ratio')
+    ax1.plot(T,np.max(v2_results,axis=0),color='gray')
+    ax1.plot(T,np.min(v2_results,axis=0),color='gray')
+    ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
+    ax1.plot(T,v2_nonnoise,color='black')
+    ax1.plot(T,v2_results.mean(axis=0),color='red') 
+    ax1.vlines((obs_num+1)*fs*dt, 0, 1, color='g', linestyles='dotted')
+    plt.savefig(output+'/v2_result.png')
+    plt.clf()
+    plt.close()
 
-    ax3=fig.add_subplot(3,2,3)
-    ax3.set_xlim(0,dt*view_steps)
-    ax3.set_xlabel('yr')
-    ax3.set_ylim(-2,3)
-    ax3.set_ylabel('g0')
+    fig = plt.figure(figsize=(5,4))
+    ax1 = fig.add_subplot(1,1,1)
+    ax1.set_xlim(0,dt*view_steps)
+    ax1.set_xlabel('yr')
+    ax1.set_ylim(0,1)
+    ax1.set_ylabel('TP ratio')
+    ax1.plot(T,np.max(v3_results,axis=0),color='gray')
+    ax1.plot(T,np.min(v3_results,axis=0),color='gray')
+    ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
+    ax1.plot(T,v3_nonnoise,color='black')
+    ax1.vlines((obs_num+1)*fs*dt, 0, 1, color='g', linestyles='dotted')
+    ax1.plot(T,v3_results.mean(axis=0),color='red') 
+    plt.savefig(output+'/v3_result.png')
+    plt.clf()
+    plt.close()
 
+    '''
     ax4=fig.add_subplot(3,2,4)
     ax4.set_xlim(0,dt*view_steps)
     ax4.set_xlabel('yr')
     ax4.set_ylim(-2,3)
     ax4.set_ylabel('g')
-
+    '''
+    '''
     ax5=fig.add_subplot(3,2,5)
     ax5.set_xlim(28,38)
     ax5.set_xlabel('yr')
@@ -700,24 +742,37 @@ if __name__=='__main__':
     ax6.set_xlabel('yr')
     ax6.set_ylim(0,1)
     ax6.set_ylabel('gamma')
-    
+    '''
+    fig=plt.figure(figsize=(5,4))
+    ax2 = fig.add_subplot(1,1,1)
+    ax2.set_xlim(0,dt*view_steps)
+    ax2.set_xlabel('yr')
+    ax2.set_ylim(25,35)
+    ax2.set_xlabel('Topt(degree Celcius)')    
+    ax2.plot(T,np.max(Topt_results,axis=0),color='gray')
+    ax2.plot(T,np.min(Topt_results,axis=0),color='gray')
+    ax2.plot(T,[28 for i in range(len(T))],color='black')
+    ax2.plot(T,Topt_results.mean(axis=0),color='red')
+    ax2.vlines((obs_num+1)*fs*dt, 25, 35, color='g', linestyles='dotted')
+    plt.savefig(output+'/Topt_result.png')
+    plt.clf()
+    plt.close()
 
-    ax1.plot(T,np.max(v_results,axis=0),color='gray')
-    ax1.plot(T,np.min(v_results,axis=0),color='gray')
-    ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
-    ax1.plot(T,v_nonnoise,color='black')
-    ax1.vlines((obs_num-1)*fs*dt, 0, 1, color='g', linestyles='dotted')
-    
-    ax2.plot(T,np.max(Tl_results,axis=0),color='gray')
-    ax2.plot(T,np.min(Tl_results,axis=0),color='gray')
-    ax2.plot(T,Tl_obs,color='black')
-    ax2.vlines((obs_num-1)*fs*dt, 30, 40, color='g', linestyles='dotted')
-
+    fig=plt.figure(figsize=(5,4))
+    ax3 = fig.add_subplot(1,1,1)
+    ax3.set_xlim(0,dt*view_steps)
+    ax3.set_xlabel('yr')
+    ax3.set_ylim(1,3)
+    ax3.set_xlabel('g0')
     ax3.plot(T,np.max(g0_results,axis=0),color='gray')
     ax3.plot(T,np.min(g0_results,axis=0),color='gray')
     ax3.plot(T,[2.0 for i in range(len(T))],color='black')
-    ax3.vlines((obs_num-1)*fs*dt, 0.5, 2.5, color='g', linestyles='dotted')
-
+    ax3.plot(T,g0_results.mean(axis=0),color='red')
+    ax3.vlines((obs_num+1)*fs*dt, 0.5, 3, color='g', linestyles='dotted')
+    plt.savefig(output+'/g0_result.png')
+    plt.clf()
+    plt.close()
+    '''
     ax4.plot(T,np.max(g_results,axis=0),color='gray')
     ax4.plot(T,np.min(g_results,axis=0),color='gray')
     ax4.plot(T,g_obs,color='black')
@@ -731,20 +786,16 @@ if __name__=='__main__':
 
     ax5.scatter(ans[:,0],ans[:,1],s=5,color='green')
 
-
-
+    '''
+    '''
     ax6.plot(T,np.max(gamma_results,axis=0),color='gray')
     ax6.plot(T,np.min(gamma_results,axis=0),color='gray')
     ax6.plot(T,[0.2 for i in range(len(Tf))],color='black')
     ax6.vlines((obs_num-1)*fs*dt, 0, 1, color='g', linestyles='dotted')
-    
-
-    ax1.plot(T,v_results.mean(axis=0),color='red') 
-    ax2.plot(T,Tl_results.mean(axis=0),color='red')
-    ax3.plot(T,g0_results.mean(axis=0),color='red')
-    ax4.plot(T,g_results.mean(axis=0),color='red')
-    ax5.plot(Tf,v_results.mean(axis=0),color='red')
-    ax6.plot(T,gamma_results.mean(axis=0),color='red')
+    '''
+    #ax4.plot(T,g_results.mean(axis=0),color='red')
+    #ax5.plot(Tf,v_results.mean(axis=0),color='red')
+    #ax6.plot(T,gamma_results.mean(axis=0),color='red')
     
     num=len(pcls.particle[pcls.particle[:,v_ind]<0.1])
     print('num of tipping particles:'+str(num))
@@ -756,10 +807,6 @@ if __name__=='__main__':
     print('num of tipping particles3:'+str(num3))
     #tip_num.append(num/s_num)
     #print('Tf at the last observation step : '+str(Tf[obs_steps[-1]]))
-    
-    fig.savefig(output+'/fig_forslide_Tf_tipping_tmv'+str(obs_num)+'.png')
-    fig.clf()
-    plt.close()
 
     print(' ')
     ##温度のプロファイルを図示する
@@ -767,7 +814,7 @@ if __name__=='__main__':
     ax=fig.add_subplot(1,1,1)
     ax.set_xlim(0,dt*view_steps)
     ax.set_ylim(30,40)
-    ax.vlines((obs_num-1)*fs*dt,ymin=30,ymax=40,linestyles='dashdot')
+    ax.vlines((obs_num+1)*fs*dt,ymin=30,ymax=40,linestyles='dashdot')
     ax.hlines(Tth,0,1000,linestyles='dotted')
     ax.plot(T,Tf,color='black')
     fig.savefig(output+'/Tf_profile.png')
@@ -912,7 +959,7 @@ if __name__=='__main__':
     ax.set_ylim(0,1000)
     ax.set_xlabel('tropical forest ratio')
     ax.set_title('histgram of particle')
-    fig.savefig(output+'/v_result.png')
+    fig.savefig(output+'/v_result_hist.png')
     fig.clf()
     plt.close()
 
@@ -923,7 +970,7 @@ if __name__=='__main__':
     ax.set_ylim(0,1000)
     ax.set_xlabel('tropical forest ratio')
     ax.set_title('histgram of particle')
-    fig.savefig(output+'/v2_result.png')
+    fig.savefig(output+'/v2_result_hist.png')
     fig.clf()
     plt.close()
 
@@ -934,7 +981,7 @@ if __name__=='__main__':
     ax.set_ylim(0,1000)
     ax.set_xlabel('tropical forest ratio')
     ax.set_title('histgram of particle')
-    fig.savefig(output+'/v3_result.png')
+    fig.savefig(output+'/v3_result_hist.png')
     fig.clf()
     plt.close()
     #print(pcls.particle[:,v_ind])
