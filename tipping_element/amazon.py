@@ -245,8 +245,8 @@ def mutual_information(pri_particles,post_particles,##state space variables, n+1
 
 if __name__=='__main__':
     n_ex=1
-    s_obs=0.025
-    roop=1
+    s_obs=0.2
+    roop=0
     steps=10000 #steps to execute
     dt=0.1
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
@@ -261,7 +261,7 @@ if __name__=='__main__':
         obs_num=201
         fs=10
     '''
-    obs_num=40
+    obs_num=0
     fs=50
 
     print('obs_num:'+str(obs_num))
@@ -681,8 +681,8 @@ if __name__=='__main__':
     ax1.set_xlabel('yr')
     ax1.set_ylim(0,1)
     ax1.set_ylabel('TP ratio')
-    ax1.plot(T,np.max(v_results,axis=0),color='gray')
-    ax1.plot(T,np.min(v_results,axis=0),color='gray')
+    ax1.plot(T,np.percentile(v_results,25,axis=0),color='gray')
+    ax1.plot(T,np.percentile(v_results,75,axis=0),color='gray')
     ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
     ax1.plot(T,v_nonnoise,color='black')
     ax1.plot(T,v_results.mean(axis=0),color='red') 
@@ -697,8 +697,8 @@ if __name__=='__main__':
     ax1.set_xlabel('yr')
     ax1.set_ylim(0,1)
     ax1.set_ylabel('TP ratio')
-    ax1.plot(T,np.max(v2_results,axis=0),color='gray')
-    ax1.plot(T,np.min(v2_results,axis=0),color='gray')
+    ax1.plot(T,np.percentile(v2_results,25,axis=0),color='gray')
+    ax1.plot(T,np.percentile(v2_results,75,axis=0),color='gray')
     ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
     ax1.plot(T,v2_nonnoise,color='black')
     ax1.plot(T,v2_results.mean(axis=0),color='red') 
@@ -713,8 +713,8 @@ if __name__=='__main__':
     ax1.set_xlabel('yr')
     ax1.set_ylim(0,1)
     ax1.set_ylabel('TP ratio')
-    ax1.plot(T,np.max(v3_results,axis=0),color='gray')
-    ax1.plot(T,np.min(v3_results,axis=0),color='gray')
+    ax1.plot(T,np.percentile(v3_results,25,axis=0),color='gray')
+    ax1.plot(T,np.percentile(v3_results,75,axis=0),color='gray')
     ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
     ax1.plot(T,v3_nonnoise,color='black')
     ax1.vlines((obs_num+1)*fs*dt, 0, 1, color='g', linestyles='dotted')
@@ -748,9 +748,11 @@ if __name__=='__main__':
     ax2.set_xlim(0,dt*view_steps)
     ax2.set_xlabel('yr')
     ax2.set_ylim(25,35)
-    ax2.set_xlabel('Topt(degree Celcius)')    
+    ax2.set_xlabel('Topt(degree Celcius)')   
     ax2.plot(T,np.max(Topt_results,axis=0),color='gray')
-    ax2.plot(T,np.min(Topt_results,axis=0),color='gray')
+    ax2.plot(T,np.min(Topt_results,axis=0),color='gray') 
+    ax2.plot(T,np.percentile(Topt_results,25,axis=0),color='gray')
+    ax2.plot(T,np.percentile(Topt_results,75,axis=0),color='gray')
     ax2.plot(T,[28 for i in range(len(T))],color='black')
     ax2.plot(T,Topt_results.mean(axis=0),color='red')
     ax2.vlines((obs_num+1)*fs*dt, 25, 35, color='g', linestyles='dotted')
@@ -766,6 +768,8 @@ if __name__=='__main__':
     ax3.set_xlabel('g0')
     ax3.plot(T,np.max(g0_results,axis=0),color='gray')
     ax3.plot(T,np.min(g0_results,axis=0),color='gray')
+    ax3.plot(T,np.percentile(g0_results,25,axis=0),color='gray')
+    ax3.plot(T,np.percentile(g0_results,75,axis=0),color='gray')
     ax3.plot(T,[2.0 for i in range(len(T))],color='black')
     ax3.plot(T,g0_results.mean(axis=0),color='red')
     ax3.vlines((obs_num+1)*fs*dt, 0.5, 3, color='g', linestyles='dotted')

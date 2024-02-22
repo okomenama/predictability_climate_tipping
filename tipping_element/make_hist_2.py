@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-data_path='../data/final_result/amoc/tip_num3.csv'
-no_obs_data_path='../data/final_result/amoc/tip_num_non_obs3.csv'
+data_path='../data/final_result/amazon/tip_num_amp3_n.csv'
+no_obs_data_path='../data/final_result/amazon/tip_num_non_obs_amp3_n.csv'
+output='../../output/final_result/amazon/scenario_amp3_n'
 
 data=pd.read_csv(data_path,header=None)
 no_obs_data=pd.read_csv(no_obs_data_path,header=None)
@@ -41,7 +42,7 @@ for i,group in group_data:
         'group:{},v_obs:{},num:{}'.format(
             group.iat[0,0],group.iat[0,1],group.iat[0,2]))
     plt.savefig(
-        '../../output/final_result/amazon/scenario3/group_{}_{}_{}.png'.format(
+        output+'/group_{}_{}_{}.png'.format(
             group.iat[0,0],group.iat[0,1],group.iat[0,2]))
     plt.close()
     plt.clf()
@@ -69,12 +70,23 @@ for i,group in group_data:
 
 
         plt.subplot(5,6,group_obs_ind*6+group_num_ind+1)
-        plt.hist(group.iloc[:,3],range=(0,1000),color='b')
-        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3],range=(0,1000),color=(1, 0, 0, 0.2))
-        plt.axis('off')
+        if (group_obs_ind==4)&(group_num_ind!=0):
+            plt.xticks([0,1])
+            plt.yticks([])
+        if (group_num_ind==0)&(group_obs_ind!=4):
+            plt.xticks([])
+            plt.yticks([0,50,100])
+        if (group_obs_ind!=4)&(group_num_ind!=0):
+            plt.xticks([0,1])
+            plt.yticks([0,50,100])
+        if (group_obs_ind!=4)&(group_num_ind!=0):
+            plt.xticks([])
+            plt.yticks([])
+        plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
+        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
 
 plt.savefig(
-    '../../output/final_result/amazon/scenario3/all_hist_1.png')
+    output+'/all_hist_1.png')
 plt.close()
 plt.clf()
 
@@ -99,12 +111,23 @@ for i,group in group_data:
 
 
         plt.subplot(5,6,group_obs_ind*6+group_num_ind+1)
-        plt.hist(group.iloc[:,3],range=(0,1000),color='b')
-        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3],range=(0,1000),color=(1, 0, 0, 0.2))
-        plt.axis('off')
+        if (group_obs_ind==4)&(group_num_ind!=0):
+            plt.xticks([0,1])
+            plt.yticks([])
+        if (group_num_ind==0)&(group_obs_ind!=4):
+            plt.xticks([])
+            plt.yticks([0,50,100])
+        if (group_obs_ind!=4)&(group_num_ind!=0):
+            plt.xticks([0,1])
+            plt.yticks([0,50,100])
+        if (group_obs_ind!=4)&(group_num_ind!=0):
+            plt.xticks([])
+            plt.yticks([])
+        plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
+        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
 
 plt.savefig(
-    '../../output/final_result/amazon/scenario3/all_hist_2.png')
+    output+'/all_hist_2.png')
 plt.close()
 plt.clf()
 
@@ -131,12 +154,24 @@ for i,group in group_data:
 
 
         plt.subplot(5,6,group_obs_ind*6+group_num_ind+1)
-        plt.hist(group.iloc[:,3],range=(0,1000),color='b')
-        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3],range=(0,1000),color=(1, 0, 0, 0.2))
-        plt.axis('off')
+        if (group_obs_ind==4)&(group_num_ind!=0):
+            plt.xticks([0,1])
+            plt.yticks([])
+        if (group_num_ind==0)&(group_obs_ind!=4):
+            plt.xticks([])
+            plt.yticks([0,50,100])
+        if (group_obs_ind!=4)&(group_num_ind!=0):
+            plt.xticks([0,1])
+            plt.yticks([0,50,100])
+        if (group_obs_ind!=4)&(group_num_ind!=0):
+            plt.xticks([])
+            plt.yticks([])
+        plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
+        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
+
 
 plt.savefig(
-    '../../output/final_result/amazon/scenario3/all_hist_3.png')
+    output+'/all_hist_3.png')
 plt.close()
 plt.clf()
 
@@ -161,7 +196,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario3/group1_accuracy_mean_map.png')
+plt.savefig(output+'/group1_accuracy_mean_map.png')
 plt.close()
 plt.clf()
 ##group1 mvar
@@ -172,7 +207,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario3/group1_accuracy_var_map.png')
+plt.savefig(output+'/group1_accuracy_var_map.png')
 plt.close()
 plt.clf()
 ##group2 mean
@@ -185,7 +220,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario3/group2_accuracy_mean_map.png')
+plt.savefig(output+'/group2_accuracy_mean_map.png')
 plt.close()
 plt.clf()
 ##group2 var
@@ -196,7 +231,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario3/group2_accuracy_var_map.png')
+plt.savefig(output+'/group2_accuracy_var_map.png')
 plt.close()
 plt.clf()
 ##group3 mean
@@ -209,7 +244,7 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario3/group3_accuracy_mean_map.png')
+plt.savefig(output+'/group3_accuracy_mean_map.png')
 plt.close()
 plt.clf()
 ##group3 var
@@ -220,6 +255,6 @@ sns.heatmap(
     yticklabels=[0.01,0.025,0.05,0.1,0.2],
     xticklabels=[10,20,40,80,100,200])
 
-plt.savefig('../../output/final_result/amazon/scenario3/group3_accuracy_var_map.png')
+plt.savefig(output+'/group3_accuracy_var_map.png')
 plt.close()
 plt.clf()

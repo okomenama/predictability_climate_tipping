@@ -26,7 +26,7 @@ def amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf,v):
 
     return k
 
-def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1):
+def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1,amp=0.1):
     ##set hyperparams
     alpha=5
     beta=10
@@ -46,7 +46,7 @@ def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1):
 
         #print('k1={},k2={},k3={},k4={}'.format(k1,k2,k3,k4))
 
-        v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon
+        v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon+amp*np.random.randn(1)*(dt)**(0.5)
 
         Tl[step+1]=Tf[step+1]+alpha*(1-v[step+1])
         g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
@@ -59,7 +59,7 @@ dt=0.1
 steps=10000
 
 params=[
-    [32.9,(Tth-32.9)/202,0.008,0.01,40,'b']
+    [32.9,(Tth-32.9)/202,0.008,-0.1,-10,'b']
     #[32.9,(Tth-32.9)/202,0.008,0.2,100,'g'],
     #[32.9,(Tth-32.9)/202,0.008,0.8,350,'r']
 ]
@@ -85,10 +85,21 @@ for T_start,r,s,dTex,dtex,c in params:
     g_obs=np.zeros((steps,))
     epsilon=1
     np.random.seed(1)
-    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=4)
     Runge_Kutta_dynamics(v_obs,Tl_obs,g_obs,steps,Tf,epsilon=epsilon)
     ax1.plot(T,Tf,color=c)
     ax2.plot(T,v_obs,color=c)
+'''
+rms_arr=[]
+for i in range(900):
+    rms=np.sqrt(np.sum((v_obs[1000+i:1100+i]-np.mean(v_obs[1000+i:1100+i]))**2/100))
+    rms_arr.append(rms)
+
+plt.figure()
+plt.plot(T[1000:1900],rms_arr)
+plt.savefig(output+'/rms.png')
+'''
 ax1.set_title('temperature & v profile')
-fig.savefig(output+'/scenario_amp0_n.png')
+fig.savefig(output+'/scenario_amp4_n.png')
 fig.clf()
+
