@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-data_path='../data/final_result/amazon/tip_num_amp3_n.csv'
-no_obs_data_path='../data/final_result/amazon/tip_num_non_obs_amp3_n.csv'
-output='../../output/final_result/amazon/scenario_amp3_n'
+data_path='../data/final_result/amoc/tip_num_amp3_new.csv'
+no_obs_data_path='../data/final_result/amoc/tip_num_non_obs_amp3_new.csv'
+output='../output/final_result/amoc/scenario_amp3_new'
 
 data=pd.read_csv(data_path,header=None)
 no_obs_data=pd.read_csv(no_obs_data_path,header=None)
@@ -14,10 +14,12 @@ group_data=data.groupby([0,1,2])
 accuracy_mean=np.zeros((3,5,6))
 accuracy_var=np.zeros((3,5,6))
 
+print(group_data.size())
+
 for i,group in group_data:
     group_num=group.iat[0,0]
 
-    group_obs_ind=(group.iat[0,2]==0.01)*0
+    group_obs_ind=(group.iat[0,1]==0.01)*0
     group_obs_ind+=(group.iat[0,1]==0.025)*1
     group_obs_ind+=(group.iat[0,1]==0.05)*2
     group_obs_ind+=(group.iat[0,1]==0.1)*3
@@ -55,7 +57,7 @@ for i,group in group_data:
     group_num=group.iat[0,0]
     if group_num==1:
 
-        group_obs_ind=(group.iat[0,2]==0.01)*0
+        group_obs_ind=(group.iat[0,1]==0.01)*0
         group_obs_ind+=(group.iat[0,1]==0.025)*1
         group_obs_ind+=(group.iat[0,1]==0.05)*2
         group_obs_ind+=(group.iat[0,1]==0.1)*3
@@ -96,7 +98,7 @@ for i,group in group_data:
     group_num=group.iat[0,0]
     if group_num==2:
 
-        group_obs_ind=(group.iat[0,2]==0.01)*0
+        group_obs_ind=(group.iat[0,1]==0.01)*0
         group_obs_ind=(group.iat[0,1]==0.025)*1
         group_obs_ind+=(group.iat[0,1]==0.05)*2
         group_obs_ind+=(group.iat[0,1]==0.1)*3
@@ -139,7 +141,7 @@ for i,group in group_data:
     group_num=group.iat[0,0]
     if group_num==3:
 
-        group_obs_ind=(group.iat[0,2]==0.01)*0
+        group_obs_ind=(group.iat[0,1]==0.01)*0
         group_obs_ind=(group.iat[0,1]==0.025)*1
         group_obs_ind+=(group.iat[0,1]==0.05)*2
         group_obs_ind+=(group.iat[0,1]==0.1)*3

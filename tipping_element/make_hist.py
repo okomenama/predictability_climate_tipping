@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-data_path='../data/final_result/amoc/tip_num_freq.csv'
-no_obs_data_path='../data/final_result/amoc/tip_num_non_obs2.csv'
-data_200_path='../data/final_result/amoc/tip_num2.csv'
-output='../../output/final_result/amoc/scenario_freq'
+data_path='../data/final_result/amoc/tip_num_amp4_freq_new.csv'
+no_obs_data_path='../data/final_result/amoc/tip_num_non_obs_amp4_new.csv'
+data_200_path='../data/final_result/amoc/tip_num_amp4_new.csv'
+output='../output/final_result/amoc/scenario_amp4_freq_new'
 
 data=pd.read_csv(data_path,header=None)
 no_obs_data=pd.read_csv(no_obs_data_path,header=None)
@@ -21,15 +21,20 @@ accuracy_var=np.zeros((3,4,4)) #amoc
 
 for i,group in group_data:
     group_fs=group.iat[0,0]
+    print(group.iat[0,0])
+    print(group.iat[0,1])
+    print(group.iat[0,2])
 
     group_obs_ind=(group.iat[0,1]==0.01)*0
-    group_obs_ind=(group.iat[0,1]==0.025)*1
+    group_obs_ind+=(group.iat[0,1]==0.025)*1
     group_obs_ind+=(group.iat[0,1]==0.05)*2
     group_obs_ind+=(group.iat[0,1]==0.1)*3
+    group_obs_ind+=(group.iat[0,1]==0.2)*4
 
     group_fs_ind=(group.iat[0,2]==70)*1
     group_fs_ind+=(group.iat[0,2]==80)*2
     group_fs_ind+=(group.iat[0,2]==90)*3
+    group_fs_ind+=(group.iat[0,2]==100)*4
 
     fig=plt.figure()
     ax=fig.add_subplot(1,1,1)
@@ -37,7 +42,7 @@ for i,group in group_data:
     ax.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
     ax.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
     mean=group.iloc[:,3].mean()
-    print(mean)
+    #print(mean)
     var=group.iloc[:,3].var()
     plt.title(
         'group:{},v_obs:{},fs:{}'.format(
@@ -47,26 +52,12 @@ for i,group in group_data:
             group.iat[0,0],group.iat[0,1],group.iat[0,2]))
     plt.close()
     plt.clf()
-    accuracy_mean[group_fs-1,group_obs_ind,group_fs_ind-1]+=mean
-    accuracy_var[group_fs-1,group_obs_ind,group_fs_ind-1]+=var
+    if group_obs_ind!=4:
+        accuracy_mean[group_fs-1,group_obs_ind,group_fs_ind-1]+=mean
+        accuracy_var[group_fs-1,group_obs_ind,group_fs_ind-1]+=var
+    print(accuracy_mean)
 
 plt.figure(1)
-data_200_group=data_200[(data_200.iloc[:,0]==1)&(data_200.iloc[:,2]==100)]
-#for i,acc in enumerate([0.01,0.025,0.05]): #amazon
-for i,acc in enumerate([0.01,0.025,0.05,0.1]): #amoc
-    #plt.subplot(3,4,(i+1)*4) #amazon
-    plt.subplot(4,4,(i+1)*4) #amoc
-    plt.hist(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3]/1000,range=(0,1),color='b')
-    plt.hist(no_obs_data[no_obs_data[0]==1].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
-    #if i!=2:#amazon
-    if i!=3:#amoc
-        plt.xticks([])
-        plt.yticks([])
-    else:
-        plt.xticks([0,1])
-        plt.yticks([])
-    accuracy_mean[0,i,3]+=np.mean(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3])
-    accuracy_var[0,i,3]+=np.var(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3])
 
 for i,group in group_data:
     group_fs=group.iat[0,0]
@@ -76,32 +67,35 @@ for i,group in group_data:
         group_obs_ind+=(group.iat[0,1]==0.025)*1
         group_obs_ind+=(group.iat[0,1]==0.05)*2
         group_obs_ind+=(group.iat[0,1]==0.1)*3 #amoc
+        group_obs_ind+=(group.iat[0,1]==0.2)*4
 
-        group_fs_ind=(group.iat[0,2]==90)*2
+        group_fs_ind=(group.iat[0,2]==100)*3
+        group_fs_ind+=(group.iat[0,2]==90)*2
         group_fs_ind+=(group.iat[0,2]==80)*1
         group_fs_ind+=(group.iat[0,2]==70)*0
 
 
         #plt.subplot(3,4,group_obs_ind*4+group_fs_ind+1) #amazon
-        plt.subplot(4,4,group_obs_ind*4+group_fs_ind+1) #amoc
-        #if (group_obs_ind==2)&(group_fs_ind!=0): #amazon
-        if (group_obs_ind==3)&(group_fs_ind!=0):#amoc
-            plt.xticks([0,1])
-            plt.yticks([])
-        #if (group_fs_ind==0)&(group_obs_ind!=2):#amazon
-        if (group_fs_ind==0)&(group_obs_ind!=3):#amoc
-            plt.xticks([])
-            plt.yticks([0,50,100])
-        #if (group_obs_ind==2)&(group_fs_ind==0): #amazon
-        if (group_obs_ind==3)&(group_fs_ind==0): #amoc
-            plt.xticks([0,1])
-            plt.yticks([0,50,100])
-        #if (group_obs_ind!=2)&(group_fs_ind!=0): #amazon
-        if (group_obs_ind!=3)&(group_fs_ind!=0): #amoc
-            plt.xticks([])
-            plt.yticks([])
-        plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
-        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
+        if group_obs_ind!=4:
+            plt.subplot(4,4,group_obs_ind*4+group_fs_ind+1) #amoc
+            #if (group_obs_ind==2)&(group_fs_ind!=0): #amazon
+            if (group_obs_ind==3)&(group_fs_ind!=0):#amoc
+                plt.xticks([0,1])
+                plt.yticks([])
+            #if (group_fs_ind==0)&(group_obs_ind!=2):#amazon
+            if (group_fs_ind==0)&(group_obs_ind!=3):#amoc
+                plt.xticks([])
+                plt.yticks([0,50,100])
+            #if (group_obs_ind==2)&(group_fs_ind==0): #amazon
+            if (group_obs_ind==3)&(group_fs_ind==0): #amoc
+                plt.xticks([0,1])
+                plt.yticks([0,50,100])
+            #if (group_obs_ind!=2)&(group_fs_ind!=0): #amazon
+            if (group_obs_ind!=3)&(group_fs_ind!=0): #amoc
+                plt.xticks([])
+                plt.yticks([])
+            plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
+            plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
 
 plt.savefig(
     output+'/all_hist_1.png')
@@ -109,22 +103,6 @@ plt.close()
 plt.clf()
 
 plt.figure(1)
-data_200_group=data_200[(data_200.iloc[:,0]==2)&(data_200.iloc[:,2]==100)]
-#for i,acc in enumerate([0.01,0.025,0.05]): #amazon
-for i,acc in enumerate([0.01,0.025,0.05,0.1]): #amoc
-    #plt.subplot(3,4,(i+1)*4) #amazon
-    plt.subplot(4,4,(i+1)*4) #amoc
-    #if i!=2: #amazon
-    if i!=3: #amoc
-        plt.xticks([])
-        plt.yticks([])
-    else:
-        plt.xticks([0,1])
-        plt.yticks([])
-    plt.hist(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3]/1000,range=(0,1),color='b')
-    plt.hist(no_obs_data[no_obs_data[0]==2].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
-    accuracy_mean[1,i,3]+=np.mean(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3])
-    accuracy_var[1,i,3]+=np.var(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3])
 
 for i,group in group_data:
     group_fs=group.iat[0,0]
@@ -134,57 +112,43 @@ for i,group in group_data:
         group_obs_ind+=(group.iat[0,1]==0.025)*1
         group_obs_ind+=(group.iat[0,1]==0.05)*2
         group_obs_ind+=(group.iat[0,1]==0.1)*3 #amoc
+        group_obs_ind+=(group.iat[0,1]==0.2)*4
 
-        group_fs_ind=(group.iat[0,2]==90)*2
+        group_fs_ind=(group.iat[0,2]==100)*3
+        group_fs_ind+=(group.iat[0,2]==90)*2
         group_fs_ind+=(group.iat[0,2]==80)*1
         group_fs_ind+=(group.iat[0,2]==70)*0
 
 
         #plt.subplot(3,4,group_obs_ind*4+group_fs_ind+1) #amazon
-        plt.subplot(4,4,group_obs_ind*4+group_fs_ind+1) #amoc
-        #if (group_obs_ind==2)&(group_fs_ind!=0): #amazon
-        if (group_obs_ind==3)&(group_fs_ind!=0):#amoc
-            plt.xticks([0,1])
-            plt.yticks([])
-        #if (group_fs_ind==0)&(group_obs_ind!=2):#amazon
-        if (group_fs_ind==0)&(group_obs_ind!=3):#amoc
-            plt.xticks([])
-            plt.yticks([0,50,100])
-        #if (group_obs_ind==2)&(group_fs_ind==0): #amazon
-        if (group_obs_ind==3)&(group_fs_ind==0): #amoc
-            plt.xticks([0,1])
-            plt.yticks([0,50,100])
-        #if (group_obs_ind!=2)&(group_fs_ind!=0): #amazon
-        if (group_obs_ind!=3)&(group_fs_ind!=0): #amoc
-            plt.xticks([])
-            plt.yticks([])
-        plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
-        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
+        if group_obs_ind!=4:
+            plt.subplot(4,4,group_obs_ind*4+group_fs_ind+1) #amoc
+            #if (group_obs_ind==2)&(group_fs_ind!=0): #amazon
+            if (group_obs_ind==3)&(group_fs_ind!=0):#amoc
+                plt.xticks([0,1])
+                plt.yticks([])
+            #if (group_fs_ind==0)&(group_obs_ind!=2):#amazon
+            if (group_fs_ind==0)&(group_obs_ind!=3):#amoc
+                plt.xticks([])
+                plt.yticks([0,50,100])
+            #if (group_obs_ind==2)&(group_fs_ind==0): #amazon
+            if (group_obs_ind==3)&(group_fs_ind==0): #amoc
+                plt.xticks([0,1])
+                plt.yticks([0,50,100])
+            #if (group_obs_ind!=2)&(group_fs_ind!=0): #amazon
+            if (group_obs_ind!=3)&(group_fs_ind!=0): #amoc
+                plt.xticks([])
+                plt.yticks([])
+            plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
+            plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
 
 plt.savefig(
     output+'/all_hist_2.png')
 plt.close()
 plt.clf()
 
-plt.figure(1)
 
 plt.figure(1)
-data_200_group=data_200[(data_200.iloc[:,0]==1)&(data_200.iloc[:,2]==100)]
-#for i,acc in enumerate([0.01,0.025,0.05]): #amazon
-for i,acc in enumerate([0.01,0.025,0.05,0.1]): #amoc
-    #plt.subplot(3,4,(i+1)*4)#amazon
-    plt.subplot(4,4,(i+1)*4) #amoc
-    #if i!=2: #amazon
-    if i!=3: #amoc
-        plt.xticks([])
-        plt.yticks([])
-    else:
-        plt.xticks([0,1])
-        plt.yticks([])
-    plt.hist(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3]/1000,range=(0,1),color='b')
-    plt.hist(no_obs_data[no_obs_data[0]==3].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
-    accuracy_mean[2,i,3]+=np.mean(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3])
-    accuracy_var[2,i,3]+=np.var(data_200_group[data_200_group.iloc[:,1]==acc].iloc[:,3])
 
 for i,group in group_data:
     group_fs=group.iat[0,0]
@@ -194,32 +158,34 @@ for i,group in group_data:
         group_obs_ind+=(group.iat[0,1]==0.025)*1
         group_obs_ind+=(group.iat[0,1]==0.05)*2
         group_obs_ind+=(group.iat[0,1]==0.1)*3 #amoc
+        group_obs_ind+=(group.iat[0,1]==0.2)*4
 
-        group_fs_ind=(group.iat[0,2]==90)*2
+        group_fs_ind=(group.iat[0,2]==100)*3
+        group_fs_ind+=(group.iat[0,2]==90)*2
         group_fs_ind+=(group.iat[0,2]==80)*1
         group_fs_ind+=(group.iat[0,2]==70)*0
 
-
+        if group_obs_ind!=4:
         #plt.subplot(3,4,group_obs_ind*4+group_fs_ind+1) #amazon
-        plt.subplot(4,4,group_obs_ind*4+group_fs_ind+1) #amoc
-        #if (group_obs_ind==2)&(group_fs_ind!=0): #amazon
-        if (group_obs_ind==3)&(group_fs_ind!=0):#amoc
-            plt.xticks([0,1])
-            plt.yticks([])
-        #if (group_fs_ind==0)&(group_obs_ind!=2):#amazon
-        if (group_fs_ind==0)&(group_obs_ind!=3):#amoc
-            plt.xticks([])
-            plt.yticks([0,50,100])
-        #if (group_obs_ind==2)&(group_fs_ind==0): #amazon
-        if (group_obs_ind==3)&(group_fs_ind==0): #amoc
-            plt.xticks([0,1])
-            plt.yticks([0,50,100])
-        #if (group_obs_ind!=2)&(group_fs_ind!=0): #amazon
-        if (group_obs_ind!=3)&(group_fs_ind!=0): #amoc
-            plt.xticks([])
-            plt.yticks([])
-        plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
-        plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
+            plt.subplot(4,4,group_obs_ind*4+group_fs_ind+1) #amoc
+            #if (group_obs_ind==2)&(group_fs_ind!=0): #amazon
+            if (group_obs_ind==3)&(group_fs_ind!=0):#amoc
+                plt.xticks([0,1])
+                plt.yticks([])
+            #if (group_fs_ind==0)&(group_obs_ind!=2):#amazon
+            if (group_fs_ind==0)&(group_obs_ind!=3):#amoc
+                plt.xticks([])
+                plt.yticks([0,50,100])
+            #if (group_obs_ind==2)&(group_fs_ind==0): #amazon
+            if (group_obs_ind==3)&(group_fs_ind==0): #amoc
+                plt.xticks([0,1])
+                plt.yticks([0,50,100])
+            #if (group_obs_ind!=2)&(group_fs_ind!=0): #amazon
+            if (group_obs_ind!=3)&(group_fs_ind!=0): #amoc
+                plt.xticks([])
+                plt.yticks([])
+            plt.hist(group.iloc[:,3]/1000,range=(0,1),color='b')
+            plt.hist(no_obs_data[no_obs_data[0]==group.iat[0,0]].iloc[:,3]/1000,range=(0,1),color=(1, 0, 0, 0.2))
 
 plt.savefig(
     output+'/all_hist_3.png')

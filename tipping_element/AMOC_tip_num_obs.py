@@ -8,10 +8,16 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import os
 import shutil
-
+'''
+TODO
+あらかじめ実験結果を入れるためのディレクトリを準備しておく
+set output file name 
+set temperature profile
+command l標準出力を書き出すログファイルを./output.logにしてあげると勝手にログファイルを今回の実験のディレクトリに移動してくれる
+'''
 if __name__=='__main__':
     yth=0.99
-    with open('../data/final_result/amoc/tip_num_amp4_n.csv','w',encoding='utf-8') as f:
+    with open('../data/final_result/amoc/tip_num_amp3_freq_new.csv','w',encoding='utf-8') as f:
         steps=10000
         dt=0.1
         ##set Temperature profile
@@ -28,6 +34,8 @@ if __name__=='__main__':
         V=300*4.5*8250
         td=180
         s_num=1000 ##number of particles
+        seed=40
+
         print('s_num:'+str(s_num))
 
         r=(Tth-Tst)/402
@@ -35,22 +43,25 @@ if __name__=='__main__':
         dTex=0.8
         dtex=350
         T=np.array([dt*i for i in range(steps)])     
-
-        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+        np.random.seed(seed)
+        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=3)
         F=AMOC.F_develop(Ta,Fth,Fref,Tth,Tref)
         ##other scenarios
         dTex=0.2
         s=0.005
         dtex=100
-        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+        np.random.seed(seed)
+        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=3)
         F2=AMOC.F_develop(Ta2,Fth,Fref,Tth,Tref)
 
         dTex=-0.1
         r=(Tth-Tst)/402
         s=0.005
         dtex=-10
-        np.random.seed(2)
-        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+
+        seed=2
+        np.random.seed(seed)
+        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=3)
         F3=AMOC.F_develop(Ta3,Fth,Fref,Tth,Tref)
 
         y_ini=0.2
@@ -65,7 +76,7 @@ if __name__=='__main__':
                                [101,20],[201,10]]:
             '''
 
-            for obs_num,fs in [[10,200],[20,100],[40,50],[80,25],[100,20],[200,10]]:
+            for obs_num,fs in [[70,20],[80,20],[90,20],[100,20]]:
                 print('obs_num:'+str(obs_num))
                 print('fs:'+str(fs))
                 for seed in range(1,101,1):
@@ -267,5 +278,5 @@ if __name__=='__main__':
 
                     num3=len(pcls.particle[pcls.particle[:,y3_ind]>yth])
                     f.write('{},{},{},{}\n'.format(3,r_obs,obs_num,num3))
-        output='../../output/final_result/amoc/scenario_amp4_n'
+        output='../output/final_result/amoc/scenario_amp3_freq_new'
         shutil.move('./output.log',output)

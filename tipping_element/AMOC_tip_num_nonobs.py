@@ -9,10 +9,17 @@ import matplotlib.cm as cm
 import os
 import shutil
 
+'''
+TODO
+あらかじめ実験結果を入れるためのディレクトリを準備しておく
+set output file name 
+set temperature profile
+command l標準出力を書き出すログファイルを./output.logにしてあげると勝手にログファイルを今回の実験のディレクトリに移動してくれる
+'''
 if __name__=='__main__':
     yth=0.99
     y_ini=0.2
-    with open('../data/final_result/amoc/tip_num_non_obs_amp4_n.csv','w',encoding='utf-8') as f:
+    with open('../data/final_result/amoc/tip_num_non_obs_amp3_new.csv','w',encoding='utf-8') as f:
         steps=10000
         dt=0.1
         ##set Temperature profile
@@ -36,22 +43,26 @@ if __name__=='__main__':
         dTex=0.8
         dtex=350
         T=np.array([dt*i for i in range(steps)])     
-
-        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+        seed=40
+        np.random.seed(seed)
+        Ta=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=3)
         F=AMOC.F_develop(Ta,Fth,Fref,Tth,Tref)
         ##other scenarios
         dTex=0.2
         s=0.005
         dtex=100
-        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+        seed=40
+        np.random.seed(seed)
+        Ta2=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=3)
         F2=AMOC.F_develop(Ta2,Fth,Fref,Tth,Tref)
 
         dTex=-0.1
         r=(Tth-Tst)/402
         s=0.005
         dtex=-10
-        np.random.seed(2)
-        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=4)
+        seed=2
+        np.random.seed(seed)
+        Ta3=AMOC.T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=3)
         F3=AMOC.F_develop(Ta3,Fth,Fref,Tth,Tref)
 
         s_obs=0
@@ -235,5 +246,5 @@ if __name__=='__main__':
             num3=len(pcls.particle[pcls.particle[:,y3_ind]>yth])
             f.write('{},{},{},{}\n'.format(3,s_obs,obs_num,num3))
 
-        output='../../output/final_result/amoc/scenario_amp4_n'
+        output='../../output/final_result/amoc/scenario_amp3_new'
         shutil.move('./output_no.log',output)

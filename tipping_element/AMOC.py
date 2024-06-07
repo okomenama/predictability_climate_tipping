@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import os
 import shutil
+from scipy import signal
+
 def T_develop(steps,dt,mu,T_start,dTlim,mu0):
     ##Tstart is the temprature shown as Tf in preindustrial period in Amazon forest
     ##dTlim is the param which shows the goal determined in Paris conference
@@ -20,7 +22,7 @@ def T_develop(steps,dt,mu,T_start,dTlim,mu0):
     
     return T
 
-def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
+def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2):
     ##This is simpler version of temperature profile
     ##Set dummy threshold d1,d2,d3
     d1=(Tth+dTex-Tst)/r
@@ -76,12 +78,12 @@ if __name__=='__main__':
     ##experimental settings
     n_ex=1
     steps=10000
-    obs_num=0
+    obs_num=40
     fs=50 ##observation assimilation frequency
     s_num=1000
     print('obs_num:'+str(obs_num))
     print('s_num:'+str(s_num))
-    roop=0
+    roop=1
     s_obs=0.025*10 ##observation noise
     s_li=0.025*10 ##likelihood variation
     dt=0.1 ##time step
@@ -114,7 +116,7 @@ if __name__=='__main__':
     p_num=7 ##dimension of the parameter set
 
     st_inds=[ita_ind,V_ind,mu_ind,td_ind] ##list of stochastic parameters
-    output='../../output/final_result/amoc/example'+str(n_ex)+'_'+str(roop)
+    output='../output/amoc/example'+str(n_ex)+'_'+str(roop)
     os.mkdir(output)
 
     gap=200
@@ -190,7 +192,7 @@ if __name__=='__main__':
     Fth=1.296
     T=np.array([dt*i for i in range(steps)])
     #Ta=T_develop(steps,dt,mu_arr,Tst,dlim,mu0)
-    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2)
     F=F_develop(Ta,Fth,Fref,Tth,Tref)
 
     dTex=0.2
@@ -199,7 +201,7 @@ if __name__=='__main__':
     s=0.01
     dtex=80
     print('tip time:'+str((Tth-Tst)/r))
-    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2)
     F2=F_develop(Ta2,Fth,Fref,Tth,Tref)
 
     dTex=0.01
@@ -208,7 +210,7 @@ if __name__=='__main__':
     s=0.01
     dtex=40
     print('tip time:'+str((Tth-Tst)/r))
-    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2)
     F3=F_develop(Ta3,Fth,Fref,Tth,Tref)
 
     ##make observation data

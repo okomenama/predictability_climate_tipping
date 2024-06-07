@@ -23,7 +23,7 @@ for amp in [1,2,3,4]:
         group_obs_num=group.iat[0,2]
         group_noise=group.iat[0,1]
 
-        group_sn=amp/group_noise/abs(arr_sn[0:(-20)*(100-group_obs_num)-1].mean())
+        group_sn=amp/group_noise/abs(arr_sn[0:(-20)*(100-group_obs_num)-1].mean())*0.1**0.5
         group_ave=group.iloc[:,3].mean()/1000
         group_var=group.iloc[:,3].var()/1000000
         result.append([group_sn,group_ave,group_var])
@@ -36,7 +36,7 @@ plt.errorbar(result[:,0],result[:,1],np.sqrt(result[:,2]),capsize=5, fmt='o', ma
 plt.title('TRIFFID S/N-Tipping probability')
 plt.xlabel('S/N')
 plt.ylabel('Probability')
-plt.savefig('../../output/final_result/amazon/sn_prob_mean.png')
+plt.savefig('../output/final_result/amazon/sn_prob_mean.png')
 plt.clf()
 
 
@@ -62,17 +62,18 @@ for amp in [1,2,3,4]:
         group_obs_num=group.iat[0,2]
         group_noise=group.iat[0,1]*10
 
-        group_sn=amp/group_noise/abs(arr_sn[2000:(-20)*(100-group_obs_num)-1].mean())
+        group_sn=amp/group_noise/abs(arr_sn[2000:(-20)*(100-group_obs_num)-1].mean())*0.1**0.5
         group_ave=group.iloc[:,3].mean()/1000
         group_var=group.iloc[:,3].var()/1000000
         result.append([group_sn,group_ave,group_var])
 
 result=np.array(result)
+plt.xlim(0,10)
 plt.ylim(0.3,1.05)
 plt.errorbar(result[:,0],result[:,1],np.sqrt(result[:,2]),capsize=5, fmt='o', markersize=10, ecolor='black', markeredgecolor = "black", color='w')
 plt.title('AMOC S/N-Tipping probability')
 plt.xlabel('S/N')
 plt.ylabel('Probability')
-plt.savefig('../../output/final_result/amoc/sn_prob_mean.png')
+plt.savefig('../output/final_result/amoc/sn_prob_mean_l.png')
 plt.clf()   
 

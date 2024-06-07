@@ -1,0 +1,57 @@
+/Users/amane/Downloads/research/sawada/thesis/tipping_points/predictability_tipping_lab/tipping_element/../particle_filter/particle.py:119: RuntimeWarning: invalid value encountered in divide
+  weights /= weights.sum()
+s_num:1000
+temperature noise :0.9486832980505138
+temperature noise :0.9486832980505138
+temperature noise :0.9486832980505138
+obs_noise:0.1
+obs_num:70
+fs:20
+obs_num:80
+fs:20
+obs_num:90
+fs:20
+obs_num:100
+fs:20
+obs_noise:0.25
+obs_num:70
+fs:20
+obs_num:80
+fs:20
+obs_num:90
+fs:20
+obs_num:100
+fs:20
+obs_noise:0.5
+obs_num:70
+fs:20
+obs_num:80
+fs:20
+obs_num:90
+fs:20
+obs_num:100
+fs:20
+obs_noise:1.0
+obs_num:70
+fs:20
+obs_num:80
+fs:20
+obs_num:90
+fs:20
+obs_num:100
+fs:20
+obs_noise:2.0
+obs_num:70
+fs:20
+obs_num:80
+fs:20
+obs_num:90
+fs:20
+obs_num:100
+fs:20
+Traceback (most recent call last):
+  File "/Users/amane/Downloads/research/sawada/thesis/tipping_points/predictability_tipping_lab/tipping_element/AMOC_tip_num_obs.py", line 282, in <module>
+    shutil.move('./output.log',output)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/shutil.py", line 804, in move
+    raise Error("Destination path '%s' already exists" % real_dst)
+shutil.Error: Destination path '../output/final_result/amoc/scenario_amp3_freq_new/output.log' already exists

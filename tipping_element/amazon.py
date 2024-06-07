@@ -22,7 +22,7 @@ def T_develop(steps,dt,mu,T_start,dTlim,mu0):
     
     return T
 
-def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
+def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2):
     ##This is simpler version of temperature profile
     ##Set dummy threshold d1,d2,d3
     d1=(Tth+dTex-Tst)/r
@@ -183,7 +183,7 @@ def amazon_forest_dieoff(g0,Topt,gamma,alpha,beta,Tf,v):
 
     return k
 
-def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,iters=1,dt=0.1,epsilon=1,noise=0,amp=0.05):
+def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,iters=1,dt=0.1,epsilon=1,noise=0,amp=2.05):
     ##set hyperparams
     alpha=5
     beta=10
@@ -244,9 +244,9 @@ def mutual_information(pri_particles,post_particles,##state space variables, n+1
 
 
 if __name__=='__main__':
-    n_ex=1
-    s_obs=0.2
-    roop=0
+    n_ex=2
+    s_obs=0.05
+    roop=1
     steps=10000 #steps to execute
     dt=0.1
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
@@ -261,7 +261,7 @@ if __name__=='__main__':
         obs_num=201
         fs=10
     '''
-    obs_num=0
+    obs_num=40
     fs=50
 
     print('obs_num:'+str(obs_num))
@@ -400,9 +400,9 @@ if __name__=='__main__':
     tip3_step_ind=28
     p_num=5
 
-    st_inds=[g0_ind,Topt_ind,gamma_ind,alpha_ind,beta_ind]
+    st_inds=[g0_ind,Topt_ind,gamma_ind,alpha_ind,beta_ind,v_ind]
 
-    output='../../output/final_result/amazon/example'+str(n_ex)+'_'+str(roop)
+    output='../output/amazon/example'+str(n_ex)+'_'+str(roop)
     os.mkdir(output)
 
     print('the number of observation is '+str(obs_num))
@@ -550,16 +550,46 @@ if __name__=='__main__':
             pcls_no_obs.particle[:,gamma_ind]
             ,dt,alpha,Tf3,step,epsilon=epsilon
             )
-        
+
         if step in obs_steps:
-            weights=pcls.norm_likelihood(v_obs[step],pcls.particle[:,v_ind],s_li)
-            inds=pcls.resampling(weights)
-            pcls.particle=pcls.particle[inds,:]
-            
+
             dir=output+'/time'+str(obs_num)+'_'+str(step)
+
             if os.path.isdir(dir):
                 shutil.rmtree(dir)
             os.mkdir(dir)
+
+            fig=plt.figure()
+            ax=fig.add_subplot(1,1,1)
+            ax.set_xlabel('g0')
+            ax.set_ylabel('v')
+            ax.set_xlim((0,2.6))
+            ax.set_ylim((0.5,1))
+            #mappable=ax.scatter(un_data[:,0],un_data[:,1], c=fre,cmap=cm)
+            ax.scatter(pcls.particle[:,g0_ind],pcls.particle[:,v_ind])
+            ax.set_title('particle_distribution')
+            #fig.colorbar(mappable,ax=ax)
+            fig.savefig(dir+'/g0_v_distribution.png')
+            fig.clf()
+            plt.close()
+
+            fig=plt.figure()
+            ax=fig.add_subplot(1,1,1)
+            ax.set_xlabel('Topt')
+            ax.set_ylabel('v')
+            ax.set_xlim((26,33))
+            ax.set_ylim((0.5,1))
+            #mappable=ax.scatter(un_data[:,0],un_data[:,1], c=fre,cmap=cm)
+            ax.scatter(pcls.particle[:,Topt_ind],pcls.particle[:,v_ind])
+            ax.set_title('particle_distribution')
+            #fig.colorbar(mappable,ax=ax)
+            fig.savefig(dir+'/Topt_v_distribution.png')
+            fig.clf()
+            plt.close()
+
+            weights=pcls.norm_likelihood(v_obs[step],pcls.particle[:,v_ind],s_li)
+            inds=pcls.resampling(weights)
+            pcls.particle=pcls.particle[inds,:]
             
             fig=plt.figure()
             ax=fig.add_subplot(1,1,1)
@@ -574,7 +604,7 @@ if __name__=='__main__':
             fig.savefig(dir+'/particle_distribution.png')
             fig.clf()
             plt.close()
-            
+
 
             pcls.gaussian_inflation(st_inds,a=0.1)
             
@@ -594,6 +624,34 @@ if __name__=='__main__':
             ax.set_title('particle_distribution')
             #fig.colorbar(mappable,ax=ax)
             fig.savefig(dir+'/particle_distribution_inflated.png')
+            fig.clf()
+            plt.close()
+
+            fig=plt.figure()
+            ax=fig.add_subplot(1,1,1)
+            ax.set_xlabel('g0')
+            ax.set_ylabel('v')
+            ax.set_xlim((0,2.6))
+            ax.set_ylim((0.5,1))
+            #mappable=ax.scatter(un_data[:,0],un_data[:,1], c=fre,cmap=cm)
+            ax.scatter(pcls.particle[:,g0_ind],pcls.particle[:,v_ind])
+            ax.set_title('particle_distribution')
+            #fig.colorbar(mappable,ax=ax)
+            fig.savefig(dir+'/g0_v_distribution_aft.png')
+            fig.clf()
+            plt.close()
+
+            fig=plt.figure()
+            ax=fig.add_subplot(1,1,1)
+            ax.set_xlabel('Topt')
+            ax.set_ylabel('v')
+            ax.set_xlim((26,33))
+            ax.set_ylim((0.5,1))
+            #mappable=ax.scatter(un_data[:,0],un_data[:,1], c=fre,cmap=cm)
+            ax.scatter(pcls.particle[:,Topt_ind],pcls.particle[:,v_ind])
+            ax.set_title('particle_distribution')
+            #fig.colorbar(mappable,ax=ax)
+            fig.savefig(dir+'/Topt_v_distribution_aft.png')
             fig.clf()
             plt.close()
 

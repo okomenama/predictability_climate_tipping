@@ -1,0 +1,21 @@
+obs_num:0
+T_start:32.9
+Tth:34.7
+dTex:0.8
+Te:34
+dtex:350
+r:0.008910891089108933
+s:0.004
+s_num:1000
+start simulation
+make obs data
+temperature noise :0.0
+likelihood sd:0.2
+obs_noise:0.2
+temperature noise :0.0
+temperature noise :0.0
+smoothing steps:0
+Traceback (most recent call last):
+  File "/Users/amane/Downloads/research/sawada/thesis/tipping_points/predictability_tipping_lab/tipping_element/amazon.py", line 406, in <module>
+    os.mkdir(output)
+FileNotFoundError: [Errno 2] No such file or directory: '../../output/amazon/example1_0'

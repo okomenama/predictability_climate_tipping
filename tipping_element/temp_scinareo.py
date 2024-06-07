@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from scipy import signal
 ##function setting
 def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
     ##This is simpler version of temperature profile
@@ -46,7 +47,7 @@ def Runge_Kutta_dynamics(v,Tl,g,steps,Tf,dt=0.1,epsilon=1,amp=0.1):
 
         #print('k1={},k2={},k3={},k4={}'.format(k1,k2,k3,k4))
 
-        v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon+amp*np.random.randn(1)*(dt)**(0.5)
+        v[step+1]=v[step]+dt/6*(k1+2*k2+2*k3+k4)/epsilon
 
         Tl[step+1]=Tf[step+1]+alpha*(1-v[step+1])
         g[step+1]=g0*(1-((Tl[step+1]-Topt)/beta)**2)
@@ -57,6 +58,7 @@ Te=34.0
 dtex=80
 dt=0.1
 steps=10000
+seed=40 #2
 
 params=[
     [32.9,(Tth-32.9)/202,0.008,-0.1,-10,'b']
@@ -65,7 +67,7 @@ params=[
 ]
 ##温度のプロファイルを図示する
 T=np.array([t*dt for t in range(steps)])
-output='../../output/final_result/amazon'
+output='../output/amazon/rms'
 fig=plt.figure()
 ax1=fig.add_subplot(2,1,1)
 ax1.set_xlim(0,dt*steps)
@@ -84,22 +86,24 @@ for T_start,r,s,dTex,dtex,c in params:
     v_obs=np.zeros((steps,))
     g_obs=np.zeros((steps,))
     epsilon=1
-    np.random.seed(1)
+    np.random.seed(seed)
     Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=4)
     Runge_Kutta_dynamics(v_obs,Tl_obs,g_obs,steps,Tf,epsilon=epsilon)
+    #print(np.where(v_obs<0.1)[0][0])
     ax1.plot(T,Tf,color=c)
     ax2.plot(T,v_obs,color=c)
-'''
+
 rms_arr=[]
-for i in range(900):
-    rms=np.sqrt(np.sum((v_obs[1000+i:1100+i]-np.mean(v_obs[1000+i:1100+i]))**2/100))
+for i in range(1650):
+    rms=signal.detrend(v_obs[50+i:350+i]).std()
     rms_arr.append(rms)
 
 plt.figure()
-plt.plot(T[1000:1900],rms_arr)
+plt.plot(T[350:2000],rms_arr)
 plt.savefig(output+'/rms.png')
-'''
+
 ax1.set_title('temperature & v profile')
 fig.savefig(output+'/scenario_amp4_n.png')
 fig.clf()
 
+#np.savetxt(output+'/np_temp_amp4.csv', rms_arr,delimiter=',',fmt='%.5f')

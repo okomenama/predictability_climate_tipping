@@ -8,8 +8,13 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import os
 import shutil
-
-##function setting
+'''
+TODO
+あらかじめ実験結果を入れるためのディレクトリを準備しておく
+set output file name 
+set temperature profile
+command l標準出力を書き出すログファイルを./output.logにしてあげると勝手にログファイルを今回の実験のディレクトリに移動してくれる
+'''
 if __name__=='__main__':
     with open('../data/final_result/amazon/tip_num_non_obs_amp4_n.csv', 'w', encoding='utf-8') as f:
         steps=10000 #steps to execute
