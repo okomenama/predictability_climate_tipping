@@ -3,6 +3,7 @@ message: "Cite as"
 authors:
   - family-names: Kubo
     given-names: Amane
+    orcid: https://orcid.org/0009-0006-4145-9055
     affiliation: "The University of Tokyo"
 title: "predictability_climate_tipping"
 doi: 10.5281/zenodo.12079800
