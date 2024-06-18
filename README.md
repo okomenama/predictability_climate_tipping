@@ -1,6 +1,7 @@
 # predictability_tipping
-[![DOI](https://zenodo.org/badge/78641742.svg)](https://zenodo.org/badge/latestdoi/78641742)
-Folders
+[![DOI](https://zenodo.org/badge/816722655.svg)](https://zenodo.org/doi/10.5281/zenodo.12079799)
+
+##Folders
 ```
 .
 ├── tipping_element
