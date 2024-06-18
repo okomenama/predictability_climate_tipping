@@ -1,4 +1,5 @@
 # predictability_tipping
+[![DOI](https://zenodo.org/badge/78641742.svg)](https://zenodo.org/badge/latestdoi/78641742)
 Folders
 ```
 .
