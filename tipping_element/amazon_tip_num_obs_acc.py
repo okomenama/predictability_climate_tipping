@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import os
 import shutil
+import yaml
+
 '''
 TODO
 あらかじめ実験結果を入れるためのディレクトリを準備しておく
@@ -16,11 +18,11 @@ set temperature profile
 command l標準出力を書き出すログファイルを./output.logにしてあげると勝手にログファイルを今回の実験のディレクトリに移動してくれる
 '''
 amp=os.environ['AMPLITUDE']
-output=os.environ['EXAMAZONOUTDIR']
+output=os.environ['EX1OUTDIR']
 
 amp=int(amp)
 
-with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
+with open(output+'/tip_num_amp'+str(amp)+'_spread.csv', 'w', encoding='utf-8') as f:
     steps=10000 #steps to execute
     dt=0.1
     tip_num=[]
@@ -38,25 +40,25 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
     s=0.008
     Tf=amazon.T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=amp)
 
-    dTex2=-0.1
-    dtex2=-10
+    dTex2=0.2
+    dtex2=100
     r2=(Tth-T_start)/202
     s2=0.008
-    np.random.seed(1)
     Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=amp)
-    print('r:'+str(r))
-    #for n_ex,s_obs in [[8,0.025],[9,0.05],[10,0.1],[11,0.2]]:
-    for s_obs in [0]:
-        #n_ex=8
-        #s_obs=0.025
+
+    dTex3=-0.1
+    dtex3=-10
+    r3=(Tth-T_start)/202
+    s3=0.008
+    np.random.seed(1)
+    Tf3=amazon.T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=amp)
+    for s_obs in [0.01,0.025,0.05,0.1]:
         print('obs_noise:'+str(s_obs))
         s_li=0
         s_li+=s_obs
         print('likelihood sd:'+str(s_li))
-        #for roop in range(1,7,1):
-        for roop in range(1,2,1):
-            #obs_num=int(10*(2**roop)/2+1) ####Number of observation
-            obs_num=0
+        for obs_num,fs in [[20,20],[30,20],[40,20],[50,20],[60,20],[70,20],[80,20]]:
+            print('obs_num:'+str(obs_num))
             for seed in range(1,101,1):
                 #seed=3
                 np.random.seed(seed)
@@ -96,11 +98,19 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
                 pre_Tl2_ind=17
                 pre_g2_ind=18
 
+                v3_ind=19
+                Tl3_ind=20
+                g3_ind=21
+                pre_v3_ind=22
+                pre_Tl3_ind=23
+                pre_g3_ind=24
+
                 tip_ind=11
                 tip_step_ind=12
-                tip2_ind=19
-                tip2_step_ind=20
-
+                tip2_ind=25
+                tip2_step_ind=26
+                tip3_ind=27
+                tip3_step_ind=28
                 p_num=5
 
                 st_inds=[g0_ind,Topt_ind,gamma_ind,alpha_ind,beta_ind]
@@ -109,17 +119,21 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
                 #os.mkdir(output)
 
                 print('the number of observation is '+str(obs_num))
-                #obs_steps=[t*fs for t in range(obs_num)]
+                obs_steps=[(t+1)*fs for t in range(obs_num)]
+
                 g0_results=np.zeros((pcls.n_particle,steps))
 
                 v_results=np.zeros((pcls.n_particle,steps))
                 v2_results=np.zeros((pcls.n_particle,steps))
+                v3_results=np.zeros((pcls.n_particle,steps))
 
                 Tl_results=np.zeros((pcls.n_particle,steps))
                 Tl2_results=np.zeros((pcls.n_particle,steps))
+                Tl3_results=np.zeros((pcls.n_particle,steps))
 
                 g_results=np.zeros((pcls.n_particle,steps))
                 g2_results=np.zeros((pcls.n_particle,steps))
+                g3_results=np.zeros((pcls.n_particle,steps))
 
                 gamma_results=np.zeros((pcls.n_particle,steps))
 
@@ -135,6 +149,8 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
                 pcls.particle[:,v2_ind]=0.8
                 pcls.particle[:,Tl2_ind]=T_start+(1-pcls.particle[:,v2_ind])*alpha
 
+                pcls.particle[:,v3_ind]=0.8
+                pcls.particle[:,Tl3_ind]=T_start+(1-pcls.particle[:,v3_ind])*alpha
                 print('start time devlop')
                 T=np.array([t*dt for t in range(steps)])
 
@@ -147,6 +163,19 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
                     pcls.particle[:,pre_v2_ind]=pcls.particle[:,v2_ind]
                     pcls.particle[:,pre_Tl2_ind]=pcls.particle[:,Tl2_ind]
                     pcls.particle[:,pre_g2_ind]=pcls.particle[:,g2_ind]
+
+                    pcls.particle[:,pre_v3_ind]=pcls.particle[:,v3_ind]
+                    pcls.particle[:,pre_Tl3_ind]=pcls.particle[:,Tl3_ind]
+                    pcls.particle[:,pre_g3_ind]=pcls.particle[:,g3_ind]
+                    '''
+                    pcls.particle[:,v_ind],pcls.particle[:,Tl_ind]=simple_model(
+                        pcls.particle[:,pre_v_ind],
+                        pcls.particle[:,pre_Tl_ind],
+                        pcls.particle[:,g_ind],
+                        pcls.particle[:,gamma_ind]
+                        ,dt,alpha
+                        )
+                        '''
                     
                     pcls.particle[:,v_ind],pcls.particle[:,Tl_ind],pcls.particle[:,g_ind]=amazon.simple_model4(
                         pcls.particle[:,pre_v_ind],
@@ -168,14 +197,24 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
                         pcls.particle[:,gamma_ind]
                         ,dt,alpha,Tf2,step,epsilon=epsilon
                         )
-                    '''
+                    pcls.particle[:,v3_ind],pcls.particle[:,Tl3_ind],pcls.particle[:,g3_ind]=amazon.simple_model4(
+                        pcls.particle[:,pre_v3_ind],
+                        pcls.particle[:,pre_Tl3_ind],
+                        pcls.particle[:,pre_g3_ind],
+                        pcls.particle[:,g0_ind],
+                        beta,
+                        pcls.particle[:,Topt_ind],
+                        pcls.particle[:,gamma_ind]
+                        ,dt,alpha,Tf3,step,epsilon=epsilon
+                        )
+                
                     if step in obs_steps:
                         weights=pcls.norm_likelihood(v_obs[step],pcls.particle[:,v_ind],s_li)
                         inds=pcls.resampling(weights)
                         pcls.particle=pcls.particle[inds,:]
 
                         pcls.gaussian_inflation(st_inds,a=0.1)
-                    '''
+                
 
                     pcls.particle[:,tip_step_ind]+=((pcls.particle[:,v_ind]<0.01)-pcls.particle[:,tip_ind])*step*(1-pcls.particle[:,tip_ind])
                     pcls.particle[:,tip_ind]=(pcls.particle[:,tip_step_ind]>0)
@@ -183,6 +222,8 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
                     pcls.particle[:,tip2_step_ind]+=((pcls.particle[:,v2_ind]<0.01)-pcls.particle[:,tip2_ind])*step*(1-pcls.particle[:,tip2_ind])
                     pcls.particle[:,tip2_ind]=(pcls.particle[:,tip2_step_ind]>0)
 
+                    pcls.particle[:,tip3_step_ind]+=((pcls.particle[:,v3_ind]<0.01)-pcls.particle[:,tip3_ind])*step*(1-pcls.particle[:,tip3_ind])
+                    pcls.particle[:,tip3_ind]=(pcls.particle[:,tip3_step_ind]>0)
 
                     v_results[:,step]+=pcls.particle[:,v_ind]
                     Tl_results[:,step]+=pcls.particle[:,Tl_ind]
@@ -194,14 +235,35 @@ with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') 
                     Tl2_results[:,step]+=pcls.particle[:,Tl2_ind]
                     g2_results[:,step]+=pcls.particle[:,g2_ind]
 
+                    v3_results[:,step]+=pcls.particle[:,v3_ind]
+                    Tl3_results[:,step]+=pcls.particle[:,Tl3_ind]
+                    g3_results[:,step]+=pcls.particle[:,g3_ind]
 
-                num=len(pcls.particle[pcls.particle[:,v_ind]<0.1])
-                f.write('{},{},{},{}\n'.format(1,s_obs,obs_num,num))
+                #Correlation between nature run (v_nonnoise) and v_result.
+
+                std=v_results[:,1800].std()
+                f.write('{},{},{},{}\n'.format(1,s_obs,obs_num,std))
+                '''
+                for par in range(s_num):
+                    corr=np.corrcoef(v_results[par,1600:1800],v_obs[1600:1800])[1,0]
+                    f.write('{},{},{},{},{}\n'.format(1,s_obs,obs_num,corr,int(v_results[par,-1]<0.1)))
+                '''
+                '''
+                for par in range(s_num):
+                    for t in range(4000):
+                        f.write('{},{},{},{},{},{}\n'.format(1,s_obs,obs_num,par,t,v_results[par,t]))
+                '''
+                '''
                 print('num of tipping particles:'+str(num))
                 num2=len(pcls.particle[pcls.particle[:,v2_ind]<0.1])
                 f.write('{},{},{},{}\n'.format(2,s_obs,obs_num,num2))
                 print('num2 of tipping particles:'+str(num2))
-
+                num3=len(pcls.particle[pcls.particle[:,v3_ind]<0.1])
+                f.write('{},{},{},{}\n'.format(3,s_obs,obs_num,num3))
+                print('num3 of tipping particles:'+str(num3))
+                '''
                 #tip_num.append(num/s_num)
                 #print('Tf at the last observation step : '+str(Tf[obs_steps[-1]]))
- 
+    # ログファイルを移動
+    #output='../../output/final_result/amazon/scenario_amp2_acc'
+    #shutil.move('./output.log', output)    

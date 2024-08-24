@@ -1,5 +1,5 @@
 # predictability_tipping
-Folders
+## Folders
 ```
 .
 ├── tipping_element
@@ -9,9 +9,11 @@ Folders
 │   └── AMOC_tip_num_non_obs.py
 │   ├── amazon.py
 │   └── AMOC.py
-│   ├── make_hist.py
-│   └── make_hist_2.py
-│   ├── s_n_plot.py
+│   ├── figure2_heatmap.py
+│   └── figure3_heatmap.py
+│   ├── figure2.py
+│   ├── figure3.py
+│   ├── figure4.py
 │   ├── temp_scenario.py
 ├── particle_filter
 │   ├── particle.py
@@ -29,4 +31,11 @@ Folders
          └── amazon
          ├── amoc
 ```
+## TO DO
+Before runnning, you have to change data directory and figure directory in `.sh` files. 
 
+In order to gain the results of experiment1 & figure2, run
+`./experiment1.sh`
+
+In order to gain the results of experiment2 & figure3, 4, run
+`./experiment2.sh`
