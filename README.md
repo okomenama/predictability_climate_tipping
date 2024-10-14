@@ -9,12 +9,11 @@
 │   └── AMOC_tip_num_non_obs.py
 │   ├── amazon.py
 │   └── AMOC.py
-│   ├── figure2_heatmap.py
-│   └── figure3_heatmap.py
 │   ├── figure2.py
 │   ├── figure3.py
 │   ├── figure4.py
 │   ├── temp_scenario.py
+│   ├── ~.sh & ~.yml
 ├── particle_filter
 │   ├── particle.py
 │   └── __init__.py
@@ -27,9 +26,8 @@
 |   |    └── example : Results of amazon.py to show the examples of data assimilation.
 |   |    └── rms : The 30-year average internal variability data and figures. Tempearture scenarios are also in this directory.
     ├── amoc : The same to ../amazon
-    └── final_result
-         └── amazon
-         ├── amoc
+    └── rev_amazon
+│   ├── rev_amoc
 ```
 ## TO DO
 Before runnning, you have to change data directory and figure directory in `.sh` files. 
