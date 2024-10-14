@@ -244,7 +244,7 @@ def mutual_information(pri_particles,post_particles,##state space variables, n+1
 
 
 if __name__=='__main__':
-    n_ex=2
+    n_ex=3
     s_obs=0.05
     roop=1
     steps=10000 #steps to execute
@@ -261,9 +261,9 @@ if __name__=='__main__':
         obs_num=201
         fs=10
     '''
-    obs_num=40
+    obs_num=40*0
     fs=50
-
+    plt.rcParams["font.size"] = 25
     print('obs_num:'+str(obs_num))
     '''
     T_start=32.9
@@ -286,7 +286,7 @@ if __name__=='__main__':
     print('dtex:'+str(dtex))
     print('r:'+str(r))
     print('s:'+str(s))
-    s_num=1000 ##number of particles
+    s_num=100 ##number of particles
     print('s_num:'+str(s_num))
 
     r_obs=0
@@ -321,7 +321,7 @@ if __name__=='__main__':
 
     tip_point=(Tth-T_start)/r
 
-    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=0)
+    Tf=T_develop2(dt,T_start,Tth,dTex,Te,dtex,r,s,steps,amp=3)
     s_li=s_obs
     print('likelihood sd:'+str(s_li))
     print('obs_noise:'+str(s_obs))
@@ -332,13 +332,13 @@ if __name__=='__main__':
     dtex2=80
     r2=(Tth-T_start)/202
     s2=0.007
-    Tf2=T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=0)
+    Tf2=T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=3)
 
     dTex3=0.01
     dtex3=40
     r3=(Tth-T_start)/202
     s3=0.004
-    Tf3=T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=0)
+    Tf3=T_develop2(dt,T_start,Tth,dTex3,Te,dtex3,r3,s3,steps,amp=3)
 
     Tl_obs=np.zeros((steps,))
     Tl2_obs=np.zeros((steps,))
@@ -559,7 +559,7 @@ if __name__=='__main__':
                 shutil.rmtree(dir)
             os.mkdir(dir)
 
-            fig=plt.figure()
+            fig=plt.figure(figsize=(12,10))
             ax=fig.add_subplot(1,1,1)
             ax.set_xlabel('g0')
             ax.set_ylabel('v')
@@ -573,7 +573,7 @@ if __name__=='__main__':
             fig.clf()
             plt.close()
 
-            fig=plt.figure()
+            fig=plt.figure(figsize=(12,10))
             ax=fig.add_subplot(1,1,1)
             ax.set_xlabel('Topt')
             ax.set_ylabel('v')
@@ -591,7 +591,7 @@ if __name__=='__main__':
             inds=pcls.resampling(weights)
             pcls.particle=pcls.particle[inds,:]
             
-            fig=plt.figure()
+            fig=plt.figure(figsize=(12,10))
             ax=fig.add_subplot(1,1,1)
             ax.set_xlabel('g0')
             ax.set_ylabel('Topt')
@@ -613,7 +613,7 @@ if __name__=='__main__':
             #un_data,fre=np.unique(data,return_counts=True,axis=0)
             #x=pcls.particle[:,g0_ind].copy()
             #y=pcls.particle[:,gamma_ind].copy()
-            fig=plt.figure()
+            fig=plt.figure(figsize=(12,10))
             ax=fig.add_subplot(1,1,1)
             ax.set_xlabel('g0')
             ax.set_ylabel('Topt')
@@ -627,7 +627,7 @@ if __name__=='__main__':
             fig.clf()
             plt.close()
 
-            fig=plt.figure()
+            fig=plt.figure(figsize=(12,10))
             ax=fig.add_subplot(1,1,1)
             ax.set_xlabel('g0')
             ax.set_ylabel('v')
@@ -641,7 +641,7 @@ if __name__=='__main__':
             fig.clf()
             plt.close()
 
-            fig=plt.figure()
+            fig=plt.figure(figsize=(12,10))
             ax=fig.add_subplot(1,1,1)
             ax.set_xlabel('Topt')
             ax.set_ylabel('v')
@@ -668,7 +668,7 @@ if __name__=='__main__':
                 rinds=pcls.resampling(rweights)
                 pcls.particle=pcls.particle[rinds,:]
                 
-                fig=plt.figure()
+                fig=plt.figure(figsize=(12,10))
                 ax=fig.add_subplot(1,1,1)
                 ax.set_xlabel('g0')
                 ax.set_ylabel('Topt')
@@ -688,7 +688,7 @@ if __name__=='__main__':
                 #un_data,fre=np.unique(data,return_counts=True,axis=0)
                 #x=pcls.particle[:,g0_ind].copy()
                 #y=pcls.particle[:,gamma_ind].copy()
-                fig=plt.figure()
+                fig=plt.figure(figsize=(12,10))
                 ax=fig.add_subplot(1,1,1)
                 ax.set_xlabel('g0')
                 ax.set_ylabel('Topt')
@@ -872,7 +872,7 @@ if __name__=='__main__':
 
     print(' ')
     ##温度のプロファイルを図示する
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.set_xlim(0,dt*view_steps)
     ax.set_ylim(30,40)
@@ -883,7 +883,7 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.set_xlim(0,dt*view_steps)
     ax.set_ylim(30,40)
@@ -894,7 +894,7 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.set_xlim(0,dt*view_steps)
     ax.set_ylim(30,40)
@@ -910,7 +910,7 @@ if __name__=='__main__':
     tip_time+=pcls.particle[:,[g0_ind,Topt_ind,tip_step_ind,tip_ind]]
     tip_time[:,2]+=(1-tip_time[:,3])*steps
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
     ax.set_xlim(0,10000)
@@ -942,11 +942,33 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
+    x = tip_time[:,0]
+    y = tip_time[:,1]
+    value=tip_time[:,2]
+    eff_ind=tip_time[:,2]<steps
+    ineff_ind=tip_time[:,2]==steps
+    print(value)        
+    fig = plt.figure()
+    ax=fig.add_subplot(1,1,1)
+    # カラーマップを生成
+    cm = plt.cm.get_cmap('RdYlBu')
+    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=3000, cmap=cm,s=1)
+    ax.set_title('tipping_area')
+    ax.set_xlabel('g0')
+    ax.set_ylabel('Topt')
+    ax.set_xlim(0,3)
+    ax.set_ylim(25,41)
+    fig.colorbar(mappable,ax=ax)
+    ax.scatter(x[ineff_ind],y[ineff_ind],color='black',s=4)
+    fig.savefig(f"{output}/tipping_heatmap_allmembers.png")
+    fig.clf()
+    plt.close()
+
     tip_time=np.zeros((pcls.n_particle,4))
     tip_time+=pcls.particle[:,[g0_ind,Topt_ind,tip2_step_ind,tip2_ind]]
     tip_time[:,2]+=(1-tip_time[:,3])*steps
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
     ax.set_xlim(0,10000)
@@ -982,7 +1004,7 @@ if __name__=='__main__':
     tip_time+=pcls.particle[:,[g0_ind,Topt_ind,tip3_step_ind,tip3_ind]]
     tip_time[:,2]+=(1-tip_time[:,3])*steps  
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
     ax.set_xlim(0,10000)
@@ -1014,7 +1036,7 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(pcls.particle[:,v_ind],bins=20,range=(0,1))
     ax.set_xlim(0,1)
@@ -1025,7 +1047,7 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(pcls.particle[:,v2_ind],bins=20,range=(0,1))
     ax.set_xlim(0,1)
@@ -1036,7 +1058,7 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(pcls.particle[:,v3_ind],bins=20,range=(0,1))
     ax.set_xlim(0,1)
@@ -1094,7 +1116,7 @@ if __name__=='__main__':
         mi2_list[i-1]+=mi2
         mi3_list[i-1]+=mi3
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.set_ylim(-1,2.4)
     ax.plot([i+1 for i in range(iters)],mi1_list,color='r',label='0.2deg, 80years')
@@ -1109,5 +1131,17 @@ if __name__=='__main__':
     plt.close()
 
     #print('シナリオ3 I(Z;Ya|X)=H(Z|X)-H(Z|Xa)='+str(mi3))
-    # ログファイルを移動
-    shutil.move('./output.log', output)    
+    fig = plt.figure(figsize=(12,10))
+    ax1 = fig.add_subplot(1,1,1)
+    ax1.set_xlim(0,dt*view_steps)
+    ax1.set_xlabel('yr')
+    ax1.set_ylim(0,1)
+    ax1.set_ylabel('TP ratio')
+    ax1.plot(T,np.transpose(v_results),color='gray')
+    ax1.scatter(T[obs_steps],v_obs[obs_steps],color='blue')
+    #ax1.plot(T,v_nonnoise,color='black')
+    #ax1.plot(T,v_results.mean(axis=0),color='red') 
+    ax1.vlines((obs_num+1)*fs*dt, 0, 1, color='g', linestyles='dotted')
+    plt.savefig(output+'/v1_result_allmembers.png')
+    plt.clf()
+    plt.close()  

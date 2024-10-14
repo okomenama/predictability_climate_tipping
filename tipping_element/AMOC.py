@@ -22,7 +22,7 @@ def T_develop(steps,dt,mu,T_start,dTlim,mu0):
     
     return T
 
-def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2):
+def T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0):
     ##This is simpler version of temperature profile
     ##Set dummy threshold d1,d2,d3
     d1=(Tth+dTex-Tst)/r
@@ -76,19 +76,19 @@ if __name__=='__main__':
     yth=0.99
     y_ini=0.2
     ##experimental settings
-    n_ex=1
+    n_ex=3
     steps=10000
-    obs_num=40
-    fs=50 ##observation assimilation frequency
-    s_num=1000
+    obs_num=25*0
+    fs=50 ##obsevation assimilation frequency
+    s_num=100
     print('obs_num:'+str(obs_num))
     print('s_num:'+str(s_num))
-    roop=1
+    roop=2
     s_obs=0.025*10 ##observation noise
     s_li=0.025*10 ##likelihood variation
     dt=0.1 ##time step
     pcls=particle.ParticleFilter(s_num)
-
+    plt.rcParams["font.size"] = 25
     ##set particles indexes
     ita_ind=0
     V_ind=1
@@ -192,7 +192,7 @@ if __name__=='__main__':
     Fth=1.296
     T=np.array([dt*i for i in range(steps)])
     #Ta=T_develop(steps,dt,mu_arr,Tst,dlim,mu0)
-    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2)
+    Ta=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
     F=F_develop(Ta,Fth,Fref,Tth,Tref)
 
     dTex=0.2
@@ -201,7 +201,7 @@ if __name__=='__main__':
     s=0.01
     dtex=80
     print('tip time:'+str((Tth-Tst)/r))
-    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2)
+    Ta2=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
     F2=F_develop(Ta2,Fth,Fref,Tth,Tref)
 
     dTex=0.01
@@ -210,7 +210,7 @@ if __name__=='__main__':
     s=0.01
     dtex=40
     print('tip time:'+str((Tth-Tst)/r))
-    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=2)
+    Ta3=T_develop2(dt,Tst,Tth,dTex,Te,dtex,r,s,steps,amp=0)
     F3=F_develop(Ta3,Fth,Fref,Tth,Tref)
 
     ##make observation data
@@ -325,23 +325,23 @@ if __name__=='__main__':
 
     ##Write result map
     view_steps=steps
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax1 = fig.add_subplot(1,1,1)
     ax1.set_xlim(0,dt*view_steps)
     ax1.set_ylim(0,15)
     ax1.set_xlabel('yr')
     ax1.set_ylabel('Q')
-    ax1.plot(T,np.percentile(Q_results,25,axis=0),color='gray',linestyle='solid')
-    ax1.plot(T,np.percentile(Q_results,75,axis=0),color='gray',linestyle='solid')
-    ax1.scatter(T[obs_steps],Q_obs[obs_steps],color='blue',linestyle='solid')
-    ax1.plot(T,Q_obs_nonnoise,color='black',linestyle='solid')
-    ax1.plot(T,Q_results.mean(axis=0),color='red')
-    ax1.vlines((obs_num+1)*fs*dt+gap,0,20,color='y', linestyle='dotted')
+    ax1.plot(T,np.percentile(Q_results,25,axis=0),color='gray',linestyle='solid',zorder=1)
+    ax1.plot(T,np.percentile(Q_results,75,axis=0),color='gray',linestyle='solid',zorder=2)
+    ax1.plot(T,Q_obs_nonnoise,color='black',linestyle='solid', zorder=3)
+    ax1.plot(T,Q_results.mean(axis=0),color='red', zorder=4)
+    ax1.vlines((obs_num+1)*fs*dt+gap,0,20,color='y', linestyle='dotted',zorder=5)
+    ax1.scatter(T[obs_steps],Q_obs[obs_steps],color='blue',linestyle='solid', s = 100, zorder=6)
     fig.savefig(output+'/Q_result1.png')
     plt.clf()
     plt.close()
 
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax1 = fig.add_subplot(1,1,1)
     ax1.set_xlim(0,dt*view_steps)
     ax1.set_ylim(0,15)
@@ -357,7 +357,7 @@ if __name__=='__main__':
     plt.clf()
     plt.close()
 
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax1 = fig.add_subplot(1,1,1)
     ax1.set_xlim(0,dt*view_steps)
     ax1.set_ylim(0,15)
@@ -373,7 +373,7 @@ if __name__=='__main__':
     plt.clf()
     plt.close()
 
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax2= fig.add_subplot(1,1,1)
     ax2.set_xlim(0,dt*view_steps)
     ax2.set_ylim(0,2)
@@ -387,7 +387,7 @@ if __name__=='__main__':
     plt.clf()
     plt.close()
 
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax2 = fig.add_subplot(1,1,1)
     ax2.set_xlim(0,dt*view_steps)
     ax2.set_ylim(0,2)
@@ -401,7 +401,7 @@ if __name__=='__main__':
     plt.clf()
     plt.close()
 
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax2 = fig.add_subplot(1,1,1)
     ax2.set_xlim(0,dt*view_steps)
     ax2.set_ylim(0,2)
@@ -415,7 +415,7 @@ if __name__=='__main__':
     plt.clf()
     plt.close()
 
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax3=fig.add_subplot(1,1,1)
     ax3.set_xlim(0,dt*view_steps)
     ax3.set_xlabel('yr')
@@ -430,7 +430,7 @@ if __name__=='__main__':
     plt.clf()
     plt.close()
 
-    fig=plt.figure(figsize=(5,4))
+    fig=plt.figure(figsize=(12,10))
     ax4=fig.add_subplot(1,1,1)
     ax4.set_xlim(0,dt*view_steps)
     ax4.set_xlabel('yr')
@@ -525,9 +525,9 @@ if __name__=='__main__':
     tip_time+=pcls.particle[:,[ita_ind,mu_ind,tip_step_ind,tip_ind]]
     tip_time[:,2]+=(1-tip_time[:,3])*steps
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
-    ax.hist(tip_time[:,2],bins=20)
+    ax.hist(tip_time[:,2],bins=20,range=(0, 10000))
     ax.set_xlim(0,10000)
     ax.set_ylim(0,1000)
     ax.set_title('tipping time distribution')
@@ -558,12 +558,37 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
+
+    ##tipping time
+    x = tip_time[:,0]
+    y = tip_time[:,1]
+    value=tip_time[:,2]
+    eff_ind=tip_time[:,2]<steps
+    ineff_ind=tip_time[:,2]==steps
+    print(value)        
+    fig = plt.figure()
+    ax=fig.add_subplot(1,1,1)
+    # カラーマップを生成
+    cm = plt.cm.get_cmap('RdYlBu')
+    mappable = ax.scatter(x[eff_ind], y[eff_ind], c=value[eff_ind],vmin=0,vmax=5000, cmap=cm,s=1)
+    ax.set_title('tipping_area')
+    ax.set_xlabel('ita')
+    ax.set_ylabel('mu')
+    ax.set_xlim(10**(-5),5*10**(-5))
+    ax.set_ylim(0.5,3.5)
+    fig.colorbar(mappable,ax=ax)
+    ax.scatter(x[ineff_ind],y[ineff_ind],color='black',s=4)
+    fig.savefig(f"{output}/tipping_heatmap_allmembers.png")
+    fig.clf()
+    plt.close()
+
+
     ##scenatio2
     tip_time=np.zeros((pcls.n_particle,4))
     tip_time+=pcls.particle[:,[ita_ind,mu_ind,tip_step2_ind,tip2_ind]]
     tip_time[:,2]+=(1-tip_time[:,3])*steps
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
     ax.set_xlim(0,10000)
@@ -601,7 +626,7 @@ if __name__=='__main__':
     tip_time+=pcls.particle[:,[ita_ind,mu_ind,tip_step3_ind,tip3_ind]]
     tip_time[:,2]+=(1-tip_time[:,3])*steps
 
-    fig=plt.figure()
+    fig=plt.figure(figsize=(12,10))
     ax=fig.add_subplot(1,1,1)
     ax.hist(tip_time[:,2],bins=20)
     ax.set_xlim(0,10000)
@@ -634,4 +659,26 @@ if __name__=='__main__':
     fig.clf()
     plt.close()
 
-    shutil.move('./output.log', output) 
+    fig=plt.figure(figsize=(12,10))
+    ax=fig.add_subplot(1,1,1)
+    ax.hist(pcls.particle[:,y_ind],bins=26,range=(0,1.25))
+    ax.set_xlim(0,1.25)
+    ax.set_ylim(0,1000)
+    ax.set_xlabel('AMOC')
+    ax.set_title('histgram of particle')
+    fig.savefig(output+'/y_result_hist.png')
+    fig.clf()
+    plt.close()
+
+    fig=plt.figure(figsize=(12,10))
+    ax2= fig.add_subplot(1,1,1)
+    ax2.set_xlim(0,dt*view_steps)
+    ax2.set_ylim(0,2)
+    ax2.set_xlabel('yr')
+    ax2.set_ylabel('y')
+    ax2.plot(T,y_results.T,color='gray',linestyle='solid')
+    #ax2.plot(T,y_obs,color='black',linestyle='solid')
+    ax2.vlines((obs_num+1)*fs*dt+gap,0,2,color='y', linestyle='dotted')
+    fig.savefig(output+'/y_result_allmemberss.png')
+    plt.clf()
+    plt.close()

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 
+export NAME='AMOC'
 export EXAMOCOUTDIR='../data/rev_AMOC'
 export EXAMOCFIGDIR='../output/rev_AMOC'
 export EXNUM='experiment1'
@@ -19,7 +20,7 @@ do
 echo "AMOC two box"
 export AMPLITUDE=${i}
 echo "${i} - amplitude = ${AMPLITUDE:${i}}"
-#python3 ./AMOC_tip_num_obs.py
-#python3 ./AMOC_tip_num_non_obs.py
+python3 ./AMOC_tip_num_obs.py
+python3 ./AMOC_tip_num_non_obs.py
 done
 python3 ./figure2.py

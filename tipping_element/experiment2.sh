@@ -1,9 +1,11 @@
 #!/bin/bash
 set -x
 
+export NAME='AMAZON'
 export EXAMAZONOUTDIR='../data/rev_amazon'
 export EXAMAZONFIGDIR='../output/rev_amazon'
 export EXNUM='experiment2'
+export REDCHAFRE=0
 
 mkdir -p ${EXAMAZONFIGDIR}
 mkdir -p ${EXAMAZONOUTDIR}

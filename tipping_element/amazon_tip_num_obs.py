@@ -13,8 +13,10 @@ import yaml
 amp=os.environ['AMPLITUDE']
 output=os.environ['EXAMAZONOUTDIR']
 ex_num=os.environ['EXNUM']
+red=os.environ['REDCHAFRE']
 
 amp=int(amp)
+red = int(red)
 
 with open(ex_num +'.yml') as file:
     config = yaml.safe_load(file.read())
@@ -28,7 +30,7 @@ print(accuracy_list)
 print('observation number and interval')
 print(obs_fs_list)
 
-with open(output+'/tip_num_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
+with open(output+'/'+ ex_num+'/tip_num_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
     steps=10000 #steps to execute
     dt=0.1
     tip_num=[]
@@ -37,7 +39,7 @@ with open(output+'/tip_num_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
     r_obs=0
     epsilon=1 ####time scale param
     #mu=np.array([mu0+mu1*i*dt for i in range(steps)])
-    T_start=32.9
+    T_start=32.7
     Tth=34.7
     Te=34
     dTex=0.8
@@ -51,6 +53,7 @@ with open(output+'/tip_num_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
     r2=(Tth-T_start)/202
     s2=0.008
     np.random.seed(1)
+
     Tf2=amazon.T_develop2(dt,T_start,Tth,dTex2,Te,dtex2,r2,s2,steps,amp=amp)
     for s_obs in accuracy_list:
         print('obs_noise:'+str(s_obs))
@@ -58,6 +61,7 @@ with open(output+'/tip_num_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
         s_li+=s_obs
         for obs_num,fs in obs_fs_list:
             print('obs_num:'+str(obs_num))
+            weights = np.ones(s_num)
             for seed in tqdm(range(1,101,1)):
                 #seed=3
                 np.random.seed(seed)
@@ -182,12 +186,25 @@ with open(output+'/tip_num_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
                         )
                 
                     if step in obs_steps:
-                        weights=pcls.norm_likelihood(v_obs[step],pcls.particle[:,v_ind],s_li)
-                        inds=pcls.resampling(weights)
-                        pcls.particle=pcls.particle[inds,:]
+                        weights*=pcls.norm_likelihood(v_obs[step],pcls.particle[:,v_ind],s_li)
 
-                        pcls.gaussian_inflation(st_inds,a=0.1)
-                
+                        if red == 1:
+
+                            if step%50 == 0:
+                                inds=pcls.resampling(weights)
+                                pcls.particle=pcls.particle[inds,:]
+
+                                pcls.gaussian_inflation(st_inds,a=0.1)
+
+                                weights = np.ones(s_num)
+                        else:
+                            inds=pcls.resampling(weights)
+                            pcls.particle=pcls.particle[inds,:]
+
+                            pcls.gaussian_inflation(st_inds,a=0.1)
+
+                            weights = np.ones(s_num)
+            
 
                     pcls.particle[:,tip_step_ind]+=((pcls.particle[:,v_ind]<0.01)-pcls.particle[:,tip_ind])*step*(1-pcls.particle[:,tip_ind])
                     pcls.particle[:,tip_ind]=(pcls.particle[:,tip_step_ind]>0)

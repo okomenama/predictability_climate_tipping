@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 
+export NAME='AMOC'
 export EXAMOCOUTDIR='../data/rev_AMOC'
 export EXAMOCFIGDIR='../output/rev_AMOC'
 export EXNUM='experiment2'

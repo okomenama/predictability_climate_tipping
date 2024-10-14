@@ -17,10 +17,11 @@ command l標準出力を書き出すログファイルを./output.logにして�
 '''
 amp=os.environ['AMPLITUDE']
 output=os.environ['EXAMAZONOUTDIR']
+ex_num = os.environ['EXNUM']
 
 amp=int(amp)
 
-with open(output+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
+with open(output+'/'+ ex_num+'/tip_num_non_obs_amp'+str(amp)+'.csv', 'w', encoding='utf-8') as f:
     steps=10000 #steps to execute
     dt=0.1
     tip_num=[]
