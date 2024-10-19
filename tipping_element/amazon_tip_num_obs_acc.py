@@ -18,11 +18,26 @@ set temperature profile
 command l標準出力を書き出すログファイルを./output.logにしてあげると勝手にログファイルを今回の実験のディレクトリに移動してくれる
 '''
 amp=os.environ['AMPLITUDE']
-output=os.environ['EX1OUTDIR']
+output=os.environ['EXAMAZONOUTDIR']
+ex_num=os.environ['EXNUM']
+red=os.environ['REDCHAFRE']
 
 amp=int(amp)
+red = int(red)
 
-with open(output+'/tip_num_amp'+str(amp)+'_spread.csv', 'w', encoding='utf-8') as f:
+with open(ex_num +'.yml') as file:
+    config = yaml.safe_load(file.read())
+
+accuracy_list = config['accuracy']
+obs_fs_list = config['obs_fs']
+
+print('accuracy_list : ')
+print(accuracy_list)
+
+print('observation number and interval')
+print(obs_fs_list)
+
+with open(output+'/'+ex_num+'/tip_num_amp'+str(amp)+'_spread.csv', 'w', encoding='utf-8') as f:
     steps=10000 #steps to execute
     dt=0.1
     tip_num=[]
@@ -240,14 +255,14 @@ with open(output+'/tip_num_amp'+str(amp)+'_spread.csv', 'w', encoding='utf-8') a
                     g3_results[:,step]+=pcls.particle[:,g3_ind]
 
                 #Correlation between nature run (v_nonnoise) and v_result.
-
+                '''
                 std=v_results[:,1800].std()
                 f.write('{},{},{},{}\n'.format(1,s_obs,obs_num,std))
                 '''
                 for par in range(s_num):
                     corr=np.corrcoef(v_results[par,1600:1800],v_obs[1600:1800])[1,0]
                     f.write('{},{},{},{},{}\n'.format(1,s_obs,obs_num,corr,int(v_results[par,-1]<0.1)))
-                '''
+                
                 '''
                 for par in range(s_num):
                     for t in range(4000):

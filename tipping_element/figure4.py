@@ -31,7 +31,9 @@ for amp in [1,2,3,4]:
         group_sn=arr_sig[0:(-50)*(40-group_obs_num)-1].max()/group_noise
         group_ave=group.iloc[:,3].mean()/1000
         group_var=group.iloc[:,3].var()/1000000
-        result.append([group_sn,group_ave,group_var])
+        if group_noise != 0.1:
+            result.append([group_sn,group_ave,group_var])
+        print(group_noise)
 
 plt.figure(figsize=(8,7))
 result=np.array(result)
@@ -69,16 +71,20 @@ for amp in [1,2,3,4]:
     for i,group in group_data:
         group_obs_num=group.iat[0,2]
         group_noise=group.iat[0,1]*10
+        group_noise_num = 0*(group_noise==0.1) + 1*(group_noise==0.25) + 2*(group_noise==0.5) + 3*(group_noise==1) + 4*(group_noise==0.2)
 
         #group_sn=amp/group_noise/abs(arr_sn[2000:(-20)*(100-group_obs_num)-1].mean())*0.1**0.5
         group_sn=arr_sig[0:(-50)*(40-group_obs_num)-1].max()/group_noise
         group_ave=group.iloc[:,3].mean()/1000
         group_var=group.iloc[:,3].var()/1000000
-        
-        if group_noise != 0.1:
-            result.append([group_sn,group_ave,group_var])
+        result.append([group_sn,group_ave,group_var])
 
+plt.title('AMOC S/N-Tipping Accuracy')
+plt.xlabel('S/N')
+plt.ylabel('Accuracy')
+plt.savefig('../output/rev_amoc/sn_prob_mean_m.png')
 
+plt.figure(figsize=(8,7))
 result=np.array(result)
 plt.ylim(0.3,1.05)
 plt.errorbar(result[:,0],result[:,1],np.sqrt(result[:,2]),capsize=5, fmt='o', markersize=10, ecolor='black', markeredgecolor = "black", color='w')

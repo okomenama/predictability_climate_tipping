@@ -73,7 +73,7 @@ for i,num in enumerate(num_list):
             ax.plot([0,1,2,3,4],[acc0,acc1,acc2,acc3,acc4],"-",label='Err={}'.format(err),marker='o',markersize=8,color=colorlist[j])
         else:
             ax.plot([0,1,2,3,4],[acc0,acc1,acc2,acc3,acc4],"-",marker='o',markersize=8,color=colorlist[j])
-    plt.legend(fontsize=25)
+    #plt.legend(fontsize=25)
     fig.savefig(outdir+ '/experiment1/amplitude_num_{}_1.png'.format(num))
     fig.clf()
     plt.close()
