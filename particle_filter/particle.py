@@ -162,4 +162,7 @@ class ParticleFilter(object):
         self.particle[i] = self.particle[max_index]+ rd.normal(0., stdparticle) / 2.
 
     return
+  
+  ##Below, adding the codes for hamiltonian monte-carlo sampling 
+  ##which transpofrom the prior to the posterior
     
